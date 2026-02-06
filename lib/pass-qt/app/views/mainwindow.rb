@@ -9,16 +9,11 @@ module PassQt
       initialize_toolbar
       initialize_central_widget
 
-      settings = QSettings.new
-      restore_geometry(settings.value("MainWindow/geometry", QByteArray.new("")))
-      restore_state(settings.value("MainWindow/windowState", QByteArray.new("")))
+      Settings.restore_window_geometry(self)
     end
 
     def close_event(evt)
-      settings = QSettings.new
-      settings.set_value("MainWindow/geometry", save_geometry)
-      settings.set_value("MainWindow/windowState", save_state)
-
+      Settings.save_window_geometry(self)
       _close_event(evt)
     end
 
