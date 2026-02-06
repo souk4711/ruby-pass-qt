@@ -1,0 +1,52 @@
+module PassQt
+  class PassListWidget < RubyQt6::Bando::QWidget
+    q_object do
+      slot "_on_combobox_current_text_changed(QString)"
+      slot "_on_searchbar_text_changed(QString)"
+    end
+
+    def initialize
+      super
+
+      initialize_combobox
+      initialize_searchbar
+      initialize_treewidget
+
+      mainlayout = QVBoxLayout.new(self)
+      mainlayout.add_layout(@comboboxlayout)
+      mainlayout.add_widget(@searchbar)
+      mainlayout.add_widget(@treewidget)
+    end
+
+    private
+
+    def initialize_combobox
+      @combobox = QComboBox.new
+      @combobox.current_text_changed.connect(self, :_on_combobox_current_text_changed)
+
+      @comboboxlayout = QHBoxLayout.new
+      @comboboxlayout.add_widget(QLabel.new("Current Store"))
+      @comboboxlayout.add_widget(@combobox)
+      @comboboxlayout.set_stretch(0, 2)
+      @comboboxlayout.set_stretch(1, 3)
+    end
+
+    def initialize_searchbar
+      @searchbar = QLineEdit.new
+      @searchbar.text_changed.connect(self, :_on_searchbar_text_changed)
+    end
+
+    def initialize_treewidget
+      @treewidget = QTreeWidget.new
+      @treewidget.set_header_hidden(true)
+    end
+
+    def _on_combobox_current_text_changed(text)
+      pp "_on_combobox_current_text_changed(#{text})"
+    end
+
+    def _on_searchbar_text_changed(text)
+      pp "_on_searchbar_text_changed(#{text})"
+    end
+  end
+end

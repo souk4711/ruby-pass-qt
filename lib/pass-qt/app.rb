@@ -1,6 +1,7 @@
 require_relative "config"
 require_relative "lib"
 
+require_relative "app/components"
 require_relative "app/views"
 
 module PassQt
@@ -15,7 +16,7 @@ module PassQt
     end
 
     def exec
-      @mainwindow.show
+      @mainwindow.show_maximized
       @app.exec
     end
   end
