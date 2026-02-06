@@ -10,8 +10,6 @@ module PassQt
     end
 
     def initialize
-      QApplication.set_application_name("PassQt")
-
       @app = QApplication.new
       @mainwindow = MainWindow.new
     end

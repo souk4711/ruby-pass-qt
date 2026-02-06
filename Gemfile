@@ -5,6 +5,13 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in pass-qt.gemspec
 gemspec
 
+%w[
+  qtcore qtgui qtwidgets
+].each do |lib|
+  gem_name = "ruby-qt6-#{lib}"
+  gem gem_name, path: "../ruby-qt6/#{lib}"
+end
+
 # rake
 gem "irb"
 gem "rake", "~> 13.0"
