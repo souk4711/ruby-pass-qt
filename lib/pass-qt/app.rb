@@ -16,7 +16,7 @@ module PassQt
     end
 
     def exec
-      @mainwindow.show_maximized
+      @mainwindow.show
       @app.exec
     end
   end
