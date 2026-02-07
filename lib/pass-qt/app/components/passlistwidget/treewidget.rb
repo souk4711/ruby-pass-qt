@@ -1,7 +1,7 @@
 module PassQt
   class PassListWidget < RubyQt6::Bando::QWidget
     class TreeWidget < RubyQt6::Bando::QTreeWidget
-      DataItem = Struct.new(:relativepath, :treewidgetitem)
+      DataItem = Struct.new(:fullname, :fileinfo, :treewidgetitem)
 
       q_object do
       end
@@ -15,7 +15,7 @@ module PassQt
         @fileiconprovider = QFileIconProvider.new
       end
 
-      def update_store(store)
+      def reinitialize_store(store)
         clear
 
         @store = QDir.new(store)
@@ -23,48 +23,67 @@ module PassQt
 
         dirs = [store]
         until dirs.empty?
-          dir = dirs.pop
+          dir = dirs.shift
           diritem = @dataitems[dir]&.treewidgetitem || invisible_root_item
 
           entry_list = QDir.new(dir).entry_info_list(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)
           entry_list.each do |entry|
-            fullpath = entry.absolute_file_path
-            next if @dataitems.key?(fullpath)
+            filepath = entry.absolute_file_path
+            next if @dataitems.key?(filepath)
 
             if entry.dir?
-              dirs << fullpath
+              dirs << filepath
+              fullname = @store.relative_file_path(filepath)
             elsif entry.file?
-              next if entry.suffix != "gpg"
+              next unless entry.suffix == "gpg"
+              fullname = @store.relative_file_path(filepath)
+              fullname = fullname[0, fullname.size - entry.suffix.size - 1]
             else
               next
             end
 
             item = QTreeWidgetItem.new(diritem, QStringList.new << entry.complete_base_name)
             item.set_icon(0, @fileiconprovider.icon(entry))
-            @dataitems[fullpath] = DataItem.new(@store.relative_file_path(fullpath), item)
+            @dataitems[filepath] = DataItem.new(fullname, entry.dup, item)
           end
         end
       end
 
-      def search(text)
+      def search_file(text)
+        if text.empty?
+          @dataitems.each do |_, item|
+            item.treewidgetitem.set_hidden(false)
+            item.treewidgetitem.set_selected(false)
+          end
+          return
+        end
+
         re_options = QRegularExpression::UnanchoredWildcardConversion | QRegularExpression::NonPathWildcardConversion
         re = QRegularExpression.from_wildcard(text, nil, re_options)
 
-        visible_set = Set.new
-        @dataitems.each do |fullpath, item|
-          has_match = re.match(item.relativepath).has_match
+        filepath_matched = Set.new
+        filepath_matched_1st = nil
+        @dataitems.each do |filepath, item|
+          has_match = re.match(item.fullname).has_match
           next unless has_match
 
+          if filepath_matched_1st.nil?
+            filepath_matched_1st = filepath if item.fileinfo.suffix == "gpg"
+          end
+
           loop do
-            visible_set << fullpath
-            fullpath = QFileInfo.new(fullpath).absolute_path
-            break unless @dataitems.key?(fullpath)
+            filepath_matched << filepath
+            filepath = QFileInfo.new(filepath).absolute_path
+            break unless @dataitems.key?(filepath)
           end
         end
 
-        @dataitems.each do |fullpath, item|
-          hidden = !visible_set.include?(fullpath)
-          item.treewidgetitem.set_hidden(hidden)
+        @dataitems.each do |filepath, item|
+          visible = filepath_matched.include?(filepath)
+          item.treewidgetitem.set_hidden(!visible)
+
+          selected = filepath_matched_1st == filepath
+          item.treewidgetitem.set_selected(selected)
         end
       end
     end

@@ -49,12 +49,15 @@ module PassQt
     end
 
     def _on_combobox_current_text_changed(_text)
-      @treewidget.update_store(@combobox.current_data.value)
+      @treewidget.reinitialize_store(@combobox.current_data.value)
       @treewidget.expand_all
+
+      @searchbar.clear
+      QTimer.single_shot(0, @searchbar, :set_focus)
     end
 
     def _on_searchbar_text_changed(text)
-      @treewidget.search(text)
+      @treewidget.search_file(text)
     end
   end
 end
