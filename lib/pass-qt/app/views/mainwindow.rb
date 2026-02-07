@@ -9,11 +9,12 @@ module PassQt
       initialize_toolbar
       initialize_central_widget
 
-      Settings.restore_window_geometry(self)
+      PassQt.settings.GET_mainwindow_geometry_and_restore_to(self)
     end
 
     def close_event(evt)
-      Settings.save_window_geometry(self)
+      PassQt.settings.PUT_mainwindow_geometry(self)
+
       _close_event(evt)
     end
 

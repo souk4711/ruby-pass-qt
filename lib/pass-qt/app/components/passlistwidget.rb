@@ -16,6 +16,11 @@ module PassQt
       mainlayout.add_layout(@comboboxlayout)
       mainlayout.add_widget(@searchbar)
       mainlayout.add_widget(@treewidget)
+
+      PassQt.settings.GET_stores.each do |store|
+        fileinfo = QFileInfo.new(store["fullpath"])
+        @combobox.add_item(fileinfo.file_name, QVariant.new(fileinfo.absolute_file_path))
+      end
     end
 
     private
@@ -43,6 +48,7 @@ module PassQt
 
     def _on_combobox_current_text_changed(text)
       pp "_on_combobox_current_text_changed(#{text})"
+      pp @combobox.current_data
     end
 
     def _on_searchbar_text_changed(text)

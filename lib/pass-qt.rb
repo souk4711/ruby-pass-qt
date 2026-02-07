@@ -1,3 +1,5 @@
+require "json"
+
 require "qt6/qtwidgets"
 
 require_relative "pass-qt/app"

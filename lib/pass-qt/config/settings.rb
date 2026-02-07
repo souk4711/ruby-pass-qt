@@ -1,19 +1,37 @@
 module PassQt
   class Settings
-    def self.save_window_geometry(widget)
-      groupname = widget.class.name.split("::").last
-
+    def GET_mainwindow_geometry_and_restore_to(mainwindow)
       settings = QSettings.new
-      settings.set_value("#{groupname}/geometry", widget.save_geometry)
-      settings.set_value("#{groupname}/windowState", widget.save_state)
+      mainwindow.restore_geometry(settings.value("MainWindow/geometry", QByteArray.new("")))
+      mainwindow.restore_state(settings.value("MainWindow/windowState", QByteArray.new("")))
     end
 
-    def self.restore_window_geometry(widget)
-      groupname = widget.class.name.split("::").last
-
+    def PUT_mainwindow_geometry(mainwindow)
       settings = QSettings.new
-      widget.restore_geometry(settings.value("#{groupname}/geometry", QByteArray.new("")))
-      widget.restore_state(settings.value("#{groupname}/windowState", QByteArray.new("")))
+      settings.set_value("MainWindow/geometry", mainwindow.save_geometry)
+      settings.set_value("MainWindow/windowState", mainwindow.save_state)
+    end
+
+    def GET_stores
+      settings = QSettings.new
+      qstringlist = settings.value("Store/used", QStringList.new)
+      qstringlist = default_stores if qstringlist.empty?
+      qstringlist.map { |qstring| JSON.parse(qstring) }
+    end
+
+    def PUT_stores(stores)
+      settings = QSettings.new
+      settings.set_value("Store/used", QStringList.new.tap do |qstringlist|
+        stores.each { |store| qstringlist << store.to_json }
+      end)
+    end
+
+    private
+
+    def default_stores
+      QStringList.new << {
+        fullpath: QDir.home.file_path(".password-store")
+      }.to_json
     end
   end
 end
