@@ -16,19 +16,11 @@ module PassQt
       end
 
       def update_store(store)
+        clear
+
         @store = QDir.new(store)
         @dataitems = {}
 
-        clear
-        update_store_rebuild_tree(store)
-      end
-
-      def search(text)
-      end
-
-      private
-
-      def update_store_rebuild_tree(store)
         dirs = [store]
         until dirs.empty?
           dir = dirs.pop
@@ -51,6 +43,28 @@ module PassQt
             item.set_icon(0, @fileiconprovider.icon(entry))
             @dataitems[fullpath] = DataItem.new(@store.relative_file_path(fullpath), item)
           end
+        end
+      end
+
+      def search(text)
+        re_options = QRegularExpression::UnanchoredWildcardConversion | QRegularExpression::NonPathWildcardConversion
+        re = QRegularExpression.from_wildcard(text, nil, re_options)
+
+        visible_set = Set.new
+        @dataitems.each do |fullpath, item|
+          has_match = re.match(item.relativepath).has_match
+          next unless has_match
+
+          loop do
+            visible_set << fullpath
+            fullpath = QFileInfo.new(fullpath).absolute_path
+            break unless @dataitems.key?(fullpath)
+          end
+        end
+
+        @dataitems.each do |fullpath, item|
+          hidden = !visible_set.include?(fullpath)
+          item.treewidgetitem.set_hidden(hidden)
         end
       end
     end
