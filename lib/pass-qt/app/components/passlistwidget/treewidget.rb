@@ -1,7 +1,7 @@
 module PassQt
   class PassListWidget < RubyQt6::Bando::QWidget
     class TreeWidget < RubyQt6::Bando::QTreeWidget
-      DataItem = Struct.new(:fullname, :treewidgetitem)
+      DataItem = Struct.new(:passname, :treewidgetitem)
 
       q_object do
         signal "passfile_changed(QString,QString)"
@@ -37,18 +37,18 @@ module PassQt
 
             if entry.dir?
               dirs << filepath
-              fullname = @store.relative_file_path(filepath)
+              passname = @store.relative_file_path(filepath)
             elsif entry.file?
               next unless h_passfile?(entry)
-              fullname = @store.relative_file_path(filepath)
-              fullname = fullname[0, fullname.size - entry.suffix.size - 1]
+              passname = @store.relative_file_path(filepath)
+              passname = passname[0, passname.size - entry.suffix.size - 1]
             else
               next
             end
 
             item = QTreeWidgetItem.new(diritem, QStringList.new << entry.complete_base_name << filepath)
             item.set_icon(0, @fileiconprovider.icon(entry))
-            @dataitems[filepath] = DataItem.new(fullname, item)
+            @dataitems[filepath] = DataItem.new(passname, item)
           end
         end
       end
@@ -68,7 +68,7 @@ module PassQt
         filepath_matched = Set.new
         filepath_matched_1st = nil
         @dataitems.each do |filepath, item|
-          has_match = re.match(item.fullname).has_match
+          has_match = re.match(item.passname).has_match
           next unless has_match
 
           if filepath_matched_1st.nil?
@@ -103,7 +103,8 @@ module PassQt
 
       def _on_item_clicked(item, _column)
         filepath = item.data(1, Qt::DisplayRole).value
-        passfile_changed.emit(@store.absolute_path, filepath) if h_passfile?(filepath)
+        dataitem = @dataitems[filepath]
+        passfile_changed.emit(@store.absolute_path, dataitem.passname) if h_passfile?(filepath)
       end
     end
   end

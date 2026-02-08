@@ -39,8 +39,8 @@ module PassQt
       set_central_widget(centralwidget)
     end
 
-    def _on_passlistwidget_passfile_changed(store, filepath)
-      pp "#{store}, #{filepath}"
+    def _on_passlistwidget_passfile_changed(store, passname)
+      @passinfowidget.reinitialize_passfile(store, passname)
     end
   end
 end
