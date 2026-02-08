@@ -1,6 +1,7 @@
 module PassQt
   class MainWindow < RubyQt6::Bando::QMainWindow
     q_object do
+      slot "_on_passlistwidget_passfile_changed(QString,QString)"
     end
 
     def initialize
@@ -26,6 +27,7 @@ module PassQt
     def initialize_central_widget
       @passlistwidget = PassListWidget.new
       @passinfowidget = PassInfoWidget.new
+      @passlistwidget.passfile_changed.connect(self, :_on_passlistwidget_passfile_changed)
 
       centralwidget = QWidget.new
       mainlayout = QHBoxLayout.new(centralwidget)
@@ -35,6 +37,10 @@ module PassQt
       mainlayout.set_stretch(1, 3)
 
       set_central_widget(centralwidget)
+    end
+
+    def _on_passlistwidget_passfile_changed(store, filepath)
+      pp "#{store}, #{filepath}"
     end
   end
 end

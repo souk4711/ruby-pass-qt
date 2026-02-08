@@ -1,9 +1,11 @@
 module PassQt
   class PassListWidget < RubyQt6::Bando::QWidget
     class TreeWidget < RubyQt6::Bando::QTreeWidget
-      DataItem = Struct.new(:fullname, :fileinfo, :treewidgetitem)
+      DataItem = Struct.new(:fullname, :treewidgetitem)
 
       q_object do
+        signal "passfile_changed(QString,QString)"
+        slot "_on_item_clicked(QTreeWidgetItem*,int)"
       end
 
       def initialize
@@ -13,6 +15,8 @@ module PassQt
         @dataitems = {}
 
         @fileiconprovider = QFileIconProvider.new
+
+        item_clicked.connect(self, :_on_item_clicked)
       end
 
       def reinitialize_store(store)
@@ -35,21 +39,21 @@ module PassQt
               dirs << filepath
               fullname = @store.relative_file_path(filepath)
             elsif entry.file?
-              next unless entry.suffix == "gpg"
+              next unless h_passfile?(entry)
               fullname = @store.relative_file_path(filepath)
               fullname = fullname[0, fullname.size - entry.suffix.size - 1]
             else
               next
             end
 
-            item = QTreeWidgetItem.new(diritem, QStringList.new << entry.complete_base_name)
+            item = QTreeWidgetItem.new(diritem, QStringList.new << entry.complete_base_name << filepath)
             item.set_icon(0, @fileiconprovider.icon(entry))
-            @dataitems[filepath] = DataItem.new(fullname, entry.dup, item)
+            @dataitems[filepath] = DataItem.new(fullname, item)
           end
         end
       end
 
-      def search_file(text)
+      def search_passfile(text)
         if text.empty?
           @dataitems.each do |_, item|
             item.treewidgetitem.set_hidden(false)
@@ -68,7 +72,7 @@ module PassQt
           next unless has_match
 
           if filepath_matched_1st.nil?
-            filepath_matched_1st = filepath if item.fileinfo.suffix == "gpg"
+            filepath_matched_1st = filepath if h_passfile?(filepath)
           end
 
           loop do
@@ -85,6 +89,21 @@ module PassQt
           selected = filepath_matched_1st == filepath
           item.treewidgetitem.set_selected(selected)
         end
+      end
+
+      private
+
+      def h_passfile?(fileinfo)
+        case fileinfo
+        when QFileInfo then fileinfo.suffix.downcase == "gpg"
+        when QString then fileinfo.ends_with(".gpg", Qt::CaseInsensitive)
+        else raise "unreachable!"
+        end
+      end
+
+      def _on_item_clicked(item, _column)
+        filepath = item.data(1, Qt::DisplayRole).value
+        passfile_changed.emit(@store.absolute_path, filepath) if h_passfile?(filepath)
       end
     end
   end

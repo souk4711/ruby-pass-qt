@@ -3,6 +3,7 @@ require_relative "passlistwidget/treewidget"
 module PassQt
   class PassListWidget < RubyQt6::Bando::QWidget
     q_object do
+      signal "passfile_changed(QString,QString)"
       slot "_on_combobox_current_text_changed(QString)"
       slot "_on_searchbar_text_changed(QString)"
     end
@@ -46,6 +47,7 @@ module PassQt
     def initialize_treewidget
       @treewidget = TreeWidget.new
       @treewidget.set_header_hidden(true)
+      @treewidget.passfile_changed.connect(self, :passfile_changed)
     end
 
     def _on_combobox_current_text_changed(_text)
@@ -57,7 +59,7 @@ module PassQt
     end
 
     def _on_searchbar_text_changed(text)
-      @treewidget.search_file(text)
+      @treewidget.search_passfile(text)
     end
   end
 end
