@@ -20,10 +20,17 @@ module PassQt
       mainlayout.add_widget(@searchbar)
       mainlayout.add_widget(@treewidget)
 
-      PassQt.settings.GET_stores.each do |store|
-        fileinfo = QFileInfo.new(store["fullpath"])
-        @combobox.add_item(fileinfo.file_name, QVariant.new(fileinfo.absolute_file_path))
+      update_combobox
+    end
+
+    def reinitialize_stores
+      @combobox.block_signals(true).tap do |blocked|
+        @combobox.clear
+      ensure
+        @combobox.block_signals(blocked)
       end
+
+      update_combobox
     end
 
     private
@@ -49,6 +56,13 @@ module PassQt
       @treewidget = TreeWidget.new
       @treewidget.set_header_hidden(true)
       @treewidget.passfile_changed.connect(self, :passfile_changed)
+    end
+
+    def update_combobox
+      PassQt.settings.GET_stores.each do |store|
+        fileinfo = QFileInfo.new(store["fullpath"])
+        @combobox.add_item(fileinfo.file_name, QVariant.new(fileinfo.absolute_file_path))
+      end
     end
 
     def _on_combobox_current_text_changed(_text)

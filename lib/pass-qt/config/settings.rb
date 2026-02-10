@@ -15,8 +15,11 @@ module PassQt
     def GET_stores
       settings = QSettings.new
       qstringlist = settings.value("Store/used", QStringList.new)
-      qstringlist = default_stores if qstringlist.empty?
-      qstringlist.map { |qstring| JSON.parse(qstring) }
+      if qstringlist.empty?
+        default_stores.tap { |stores| PUT_stores(stores) }
+      else
+        qstringlist.map { |qstring| JSON.parse(qstring) }
+      end
     end
 
     def PUT_stores(stores)
@@ -29,9 +32,9 @@ module PassQt
     private
 
     def default_stores
-      QStringList.new << {
-        fullpath: QDir.home.file_path(".password-store")
-      }.to_json
+      [] << {
+        "fullpath" => QDir.home.file_path(".password-store")
+      }
     end
   end
 end

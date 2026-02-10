@@ -3,6 +3,7 @@ module PassQt
     DataItem = Struct.new(:tablewidgetitem)
 
     q_object do
+      signal "stores_changed()"
       slot "_on_list_add_button_clicked()"
       slot "_on_list_remove_button_clicked()"
     end
@@ -55,8 +56,6 @@ module PassQt
       end
     end
 
-    private
-
     def update_tablewidget_addtableitem(fullpath)
       tableitem = QWidget.new
       tableitemlayout = QHBoxLayout.new(tableitem)
@@ -81,6 +80,7 @@ module PassQt
     def h_put_stores
       stores = @dataitems.map { |fullpath, _| {"fullpath" => fullpath} }
       PassQt.settings.PUT_stores(stores)
+      stores_changed.emit
     end
 
     def _on_list_add_button_clicked

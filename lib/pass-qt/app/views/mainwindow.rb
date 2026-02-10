@@ -2,6 +2,7 @@ module PassQt
   class MainWindow < RubyQt6::Bando::QMainWindow
     q_object do
       slot "_on_browse_action_triggered()"
+      slot "_on_browsestoresdialog_stores_changed()"
       slot "_on_passlistwidget_passfile_changed(QString,QString)"
     end
 
@@ -50,7 +51,12 @@ module PassQt
 
     def _on_browse_action_triggered
       dialog = BrowseStoresDialog.new
+      dialog.stores_changed.connect(self, :_on_browsestoresdialog_stores_changed)
       dialog.show
+    end
+
+    def _on_browsestoresdialog_stores_changed
+      @passlistwidget.reinitialize_stores
     end
 
     def _on_passlistwidget_passfile_changed(store, passname)
