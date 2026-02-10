@@ -1,10 +1,15 @@
 module PassQt
   class PassInfoWidget < RubyQt6::Bando::QWidget
     q_object do
+      slot "_on_copy_action_triggered()"
+      slot "_on_copy_action_triggered_otpcode()"
     end
 
     def initialize
       super
+
+      @store = QString.new
+      @passname = QString.new
 
       initialize_form
       initialize_otpform
@@ -23,10 +28,13 @@ module PassQt
     end
 
     def reinitialize_passfile(store, passname)
-      Pass.show(store, passname, on_success: ->(data) {
+      @store = store
+      @passname = passname
+
+      Pass.show(@store, @passname, on_success: ->(data) {
         formdata = h_parse_passfile(data)
         if formdata["password"].start_with?("otpauth:")
-          update_otpform(formdata, store, passname)
+          update_otpform(formdata)
         else
           update_form(formdata)
         end
@@ -40,8 +48,17 @@ module PassQt
 
     def initialize_form
       @usernameinput = initialize_form_inputfield
+      action = @usernameinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
+      action.triggered.connect(self, :_on_copy_action_triggered)
+
       @passwordinput = initialize_form_inputfield
+      @passwordinput.set_echo_mode(QLineEdit::Password)
+      action = @passwordinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
+      action.triggered.connect(self, :_on_copy_action_triggered)
+
       @websiteinput = initialize_form_inputfield
+      action = @websiteinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
+      action.triggered.connect(self, :_on_copy_action_triggered)
 
       @form = QWidget.new
       formlayout = QFormLayout.new(@form)
@@ -52,7 +69,13 @@ module PassQt
 
     def initialize_otpform
       @otpinput = initialize_form_inputfield
+      @otpinput.set_echo_mode(QLineEdit::Password)
+      action = @otpinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
+      action.triggered.connect(self, :_on_copy_action_triggered)
+
       @otpcodeinput = initialize_form_inputfield
+      action = @otpcodeinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
+      action.triggered.connect(self, :_on_copy_action_triggered_otpcode)
 
       @otpform = QWidget.new
       otpformlayout = QFormLayout.new(@otpform)
@@ -62,7 +85,8 @@ module PassQt
 
     def initialize_form_inputfield
       input = QLineEdit.new
-      input.set_enabled(false)
+      input.set_read_only(true)
+      input.set_focus_policy(Qt::NoFocus)
       input
     end
 
@@ -87,11 +111,12 @@ module PassQt
       @stackedlayout.set_current_widget(@form)
     end
 
-    def update_otpform(formdata, store, passname)
+    def update_otpform(formdata)
       @otpinput.set_text(formdata["password"])
+      @otpinput.set_cursor_position(0)
       @stackedlayout.set_current_widget(@otpform)
 
-      Pass.otp_show(store, passname, on_success: ->(data) {
+      Pass.otp(@store, @passname, on_success: ->(data) {
         otpcode = data["stdout"].rstrip
         @otpcodeinput.set_text(otpcode)
       }, on_failure: ->(_) {})
@@ -134,6 +159,19 @@ module PassQt
         "username" => username,
         "website" => website
       }
+    end
+
+    def _on_copy_action_triggered
+      input = sender.parent
+      QApplication.clipboard.set_text(input.text)
+    end
+
+    def _on_copy_action_triggered_otpcode
+      Pass.otp(@store, @passname, on_success: ->(data) {
+        otpcode = data["stdout"].rstrip
+        @otpcodeinput.set_text(otpcode)
+        QApplication.clipboard.set_text(otpcode)
+      }, on_failure: ->(_) {})
     end
   end
 end
