@@ -3,6 +3,7 @@ module PassQt
     q_object do
       slot "_on_copy_action_triggered()"
       slot "_on_copy_action_triggered_otpcode()"
+      slot "_on_view_action_triggered()"
     end
 
     def initialize
@@ -52,9 +53,10 @@ module PassQt
       action.triggered.connect(self, :_on_copy_action_triggered)
 
       @passwordinput = initialize_form_inputfield
-      @passwordinput.set_echo_mode(QLineEdit::Password)
       action = @passwordinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
       action.triggered.connect(self, :_on_copy_action_triggered)
+      action = @passwordinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::DocumentPrintPreview), QLineEdit::TrailingPosition)
+      action.triggered.connect(self, :_on_view_action_triggered)
 
       @websiteinput = initialize_form_inputfield
       action = @websiteinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
@@ -69,9 +71,10 @@ module PassQt
 
     def initialize_otpform
       @otpinput = initialize_form_inputfield
-      @otpinput.set_echo_mode(QLineEdit::Password)
       action = @otpinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
       action.triggered.connect(self, :_on_copy_action_triggered)
+      action = @otpinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::DocumentPrintPreview), QLineEdit::TrailingPosition)
+      action.triggered.connect(self, :_on_view_action_triggered)
 
       @otpcodeinput = initialize_form_inputfield
       action = @otpcodeinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
@@ -105,8 +108,10 @@ module PassQt
     end
 
     def update_form(formdata)
-      @usernameinput.set_text(formdata["username"])
       @passwordinput.set_text(formdata["password"])
+      @passwordinput.set_echo_mode(QLineEdit::Password)
+
+      @usernameinput.set_text(formdata["username"])
       @websiteinput.set_text(formdata["website"])
       @stackedlayout.set_current_widget(@form)
     end
@@ -114,6 +119,9 @@ module PassQt
     def update_otpform(formdata)
       @otpinput.set_text(formdata["password"])
       @otpinput.set_cursor_position(0)
+      @otpinput.set_echo_mode(QLineEdit::Password)
+
+      @otpcodeinput.set_text("")
       @stackedlayout.set_current_widget(@otpform)
 
       Pass.otp(@store, @passname, on_success: ->(data) {
@@ -172,6 +180,15 @@ module PassQt
         @otpcodeinput.set_text(otpcode)
         QApplication.clipboard.set_text(otpcode)
       }, on_failure: ->(_) {})
+    end
+
+    def _on_view_action_triggered
+      input = sender.parent
+      case input.echo_mode
+      when QLineEdit::Normal then input.set_echo_mode(QLineEdit::Password)
+      when QLineEdit::Password then input.set_echo_mode(QLineEdit::Normal)
+      else raise "unreachable!"
+      end
     end
   end
 end
