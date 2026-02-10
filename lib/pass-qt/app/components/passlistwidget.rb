@@ -3,6 +3,7 @@ require_relative "passlistwidget/treewidget"
 module PassQt
   class PassListWidget < RubyQt6::Bando::QWidget
     q_object do
+      signal "store_changed(QString)"
       signal "passfile_changed(QString,QString)"
       slot "_on_combobox_current_text_changed(QString)"
       slot "_on_searchbar_text_changed(QString)"
@@ -66,8 +67,11 @@ module PassQt
     end
 
     def _on_combobox_current_text_changed(_text)
-      @treewidget.reinitialize_store(@combobox.current_data.value)
+      store = @combobox.current_data.value
+
+      @treewidget.reinitialize_store(store)
       @treewidget.expand_all
+      store_changed.emit(store)
 
       @searchbar.clear
       QTimer.single_shot(0, @searchbar, :set_focus)

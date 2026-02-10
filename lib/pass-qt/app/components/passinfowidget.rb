@@ -45,6 +45,13 @@ module PassQt
       })
     end
 
+    def reinitialize_passfile_none(store)
+      @store = store
+      @passname = QString.new
+
+      update_outinfolabel("")
+    end
+
     private
 
     def initialize_form

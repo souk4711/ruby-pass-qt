@@ -3,6 +3,7 @@ module PassQt
     q_object do
       slot "_on_browse_action_triggered()"
       slot "_on_browsestoresdialog_stores_changed()"
+      slot "_on_passlistwidget_store_changed(QString)"
       slot "_on_passlistwidget_passfile_changed(QString,QString)"
     end
 
@@ -36,8 +37,10 @@ module PassQt
 
     def initialize_central_widget
       @passlistwidget = PassListWidget.new
-      @passinfowidget = PassInfoWidget.new
+      @passlistwidget.store_changed.connect(self, :_on_passlistwidget_store_changed)
       @passlistwidget.passfile_changed.connect(self, :_on_passlistwidget_passfile_changed)
+
+      @passinfowidget = PassInfoWidget.new
 
       centralwidget = QWidget.new
       mainlayout = QHBoxLayout.new(centralwidget)
@@ -57,6 +60,10 @@ module PassQt
 
     def _on_browsestoresdialog_stores_changed
       @passlistwidget.reinitialize_stores
+    end
+
+    def _on_passlistwidget_store_changed(store)
+      @passinfowidget.reinitialize_passfile_none(store)
     end
 
     def _on_passlistwidget_passfile_changed(store, passname)
