@@ -1,6 +1,12 @@
 module Pass
   def self.show(store, passname, on_success:, on_failure:)
-    arguments = QStringList.new << "show" << passname
+    arguments = QStringList.new << passname
+    envs = {PASSWORD_STORE_DIR: store}
+    Contrib::Process.execute("pass", arguments, envs:, on_success:, on_failure:)
+  end
+
+  def self.otp_show(store, passname, on_success:, on_failure:)
+    arguments = QStringList.new << "otp" << passname
     envs = {PASSWORD_STORE_DIR: store}
     Contrib::Process.execute("pass", arguments, envs:, on_success:, on_failure:)
   end
