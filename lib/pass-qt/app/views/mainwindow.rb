@@ -1,6 +1,7 @@
 module PassQt
   class MainWindow < RubyQt6::Bando::QMainWindow
     q_object do
+      slot "_on_browse_action_triggered()"
       slot "_on_passlistwidget_passfile_changed(QString,QString)"
     end
 
@@ -22,6 +23,14 @@ module PassQt
     private
 
     def initialize_toolbar
+      browse_action = QAction.new(QIcon.from_theme(QIcon::ThemeIcon::Computer), "Browse")
+      browse_action.set_tool_tip("Browse password stores")
+      browse_action.triggered.connect(self, :_on_browse_action_triggered)
+
+      toolbar = add_tool_bar("ToolBar")
+      toolbar.set_object_name("ToolBar")
+      toolbar.set_movable(false)
+      toolbar.add_action(browse_action)
     end
 
     def initialize_central_widget
@@ -37,6 +46,11 @@ module PassQt
       mainlayout.set_stretch(1, 3)
 
       set_central_widget(centralwidget)
+    end
+
+    def _on_browse_action_triggered
+      dialog = BrowseStoresDialog.new
+      dialog.show
     end
 
     def _on_passlistwidget_passfile_changed(store, passname)
