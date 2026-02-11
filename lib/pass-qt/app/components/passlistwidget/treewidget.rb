@@ -4,7 +4,8 @@ module PassQt
       DataItem = Struct.new(:passname, :treewidgetitem)
 
       q_object do
-        signal "passfile_changed(QString,QString)"
+        signal "passfile_selected(QString,QString)"
+        signal "passfolder_selected(QString,QString)"
         slot "_on_item_clicked(QTreeWidgetItem*,int)"
       end
 
@@ -104,7 +105,9 @@ module PassQt
       def _on_item_clicked(item, _column)
         filepath = item.data(1, Qt::DisplayRole).value
         dataitem = @dataitems[filepath]
-        passfile_changed.emit(@store.absolute_path, dataitem.passname) if h_passfile?(filepath)
+        h_passfile?(filepath) ?
+          passfile_selected.emit(@store.absolute_path, dataitem.passname) :
+          passfolder_selected.emit(@store.absolute_path, dataitem.passname)
       end
     end
   end

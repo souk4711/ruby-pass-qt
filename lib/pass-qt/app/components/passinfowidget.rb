@@ -45,9 +45,9 @@ module PassQt
       })
     end
 
-    def reinitialize_passfile_none(store)
+    def reinitialize_passfolder(store, passname)
       @store = store
-      @passname = QString.new
+      @passname = passname
 
       update_outinfolabel("")
     end
@@ -55,33 +55,34 @@ module PassQt
     private
 
     def initialize_form
-      @usernameinput = initialize_form_inputfield
-      action = @usernameinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
-      action.triggered.connect(self, :_on_copy_action_triggered)
+      @passnameinput = initialize_form_inputfield
+      initialize_form_inputfield_copyaction(@passnameinput)
 
       @passwordinput = initialize_form_inputfield
-      action = @passwordinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
-      action.triggered.connect(self, :_on_copy_action_triggered)
-      action = @passwordinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::DocumentPrintPreview), QLineEdit::TrailingPosition)
-      action.triggered.connect(self, :_on_view_action_triggered)
+      initialize_form_inputfield_copyaction(@passwordinput)
+      initialize_form_inputfield_viewaction(@passwordinput)
+
+      @usernameinput = initialize_form_inputfield
+      initialize_form_inputfield_copyaction(@usernameinput)
 
       @websiteinput = initialize_form_inputfield
-      action = @websiteinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
-      action.triggered.connect(self, :_on_copy_action_triggered)
+      initialize_form_inputfield_copyaction(@websiteinput)
 
       @form = QWidget.new
       formlayout = QFormLayout.new(@form)
+      formlayout.add_row(QLabel.new("File"), @passnameinput)
       formlayout.add_row(QLabel.new("Username"), @usernameinput)
       formlayout.add_row(QLabel.new("Password"), @passwordinput)
       formlayout.add_row(QLabel.new("Website"), @websiteinput)
     end
 
     def initialize_otpform
-      @otpinput = initialize_form_inputfield
-      action = @otpinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
-      action.triggered.connect(self, :_on_copy_action_triggered)
-      action = @otpinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::DocumentPrintPreview), QLineEdit::TrailingPosition)
-      action.triggered.connect(self, :_on_view_action_triggered)
+      @otppassnameinput = initialize_form_inputfield
+      initialize_form_inputfield_copyaction(@otppassnameinput)
+
+      @otppasswordinput = initialize_form_inputfield
+      initialize_form_inputfield_copyaction(@otppasswordinput)
+      initialize_form_inputfield_viewaction(@otppasswordinput)
 
       @otpcodeinput = initialize_form_inputfield
       action = @otpcodeinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
@@ -89,7 +90,8 @@ module PassQt
 
       @otpform = QWidget.new
       otpformlayout = QFormLayout.new(@otpform)
-      otpformlayout.add_row(QLabel.new("OTP URI"), @otpinput)
+      otpformlayout.add_row(QLabel.new("File"), @otppassnameinput)
+      otpformlayout.add_row(QLabel.new("OTP URI"), @otppasswordinput)
       otpformlayout.add_row(QLabel.new("OTP Code"), @otpcodeinput)
     end
 
@@ -98,6 +100,16 @@ module PassQt
       input.set_read_only(true)
       input.set_focus_policy(Qt::NoFocus)
       input
+    end
+
+    def initialize_form_inputfield_copyaction(input)
+      action = input.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
+      action.triggered.connect(self, :_on_copy_action_triggered)
+    end
+
+    def initialize_form_inputfield_viewaction(input)
+      action = input.add_action(QIcon.from_theme(QIcon::ThemeIcon::DocumentPrintPreview), QLineEdit::TrailingPosition)
+      action.triggered.connect(self, :_on_view_action_triggered)
     end
 
     def initialize_infoframe
@@ -115,6 +127,7 @@ module PassQt
     end
 
     def update_form(formdata)
+      @passnameinput.set_text(@passname)
       @passwordinput.set_text(formdata["password"])
       @passwordinput.set_echo_mode(QLineEdit::Password)
 
@@ -124,9 +137,10 @@ module PassQt
     end
 
     def update_otpform(formdata)
-      @otpinput.set_text(formdata["password"])
-      @otpinput.set_cursor_position(0)
-      @otpinput.set_echo_mode(QLineEdit::Password)
+      @otppassnameinput.set_text(@passname)
+      @otppasswordinput.set_text(formdata["password"])
+      @otppasswordinput.set_cursor_position(0)
+      @otppasswordinput.set_echo_mode(QLineEdit::Password)
 
       @otpcodeinput.set_text("")
       @stackedlayout.set_current_widget(@otpform)

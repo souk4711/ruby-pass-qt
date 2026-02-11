@@ -88,13 +88,13 @@ module PassQt
       return if dir.empty?
 
       if @dataitems.key?(dir)
-        message = "store `#{dir}` already exists."
+        message = "store #{dir} already exists."
         QMessageBox.critical(self, "", message)
         return
       end
 
       unless QDir.new(dir).exists(".gpg-id")
-        message = "store `#{dir}` invalid, missing .gpg-id file."
+        message = "store #{dir} invalid, the .gpg-id file is missing."
         QMessageBox.critical(self, "", message)
         return
       end
