@@ -81,7 +81,7 @@ module PassQt
     end
 
     def _on_searchbar_text_changed(text)
-      @treewidget.search_passfile(text)
+      @treewidget.update_passname_filter(text)
     end
   end
 end

@@ -30,8 +30,8 @@ module PassQt
       browse_action.set_tool_tip("Browse password stores")
       browse_action.triggered.connect(self, :_on_browse_action_triggered)
 
-      toolbar = add_tool_bar("ToolBar")
-      toolbar.set_object_name("ToolBar")
+      toolbar = add_tool_bar("")
+      toolbar.set_object_name("mainwindow_toolbar")
       toolbar.set_movable(false)
       toolbar.add_action(browse_action)
     end

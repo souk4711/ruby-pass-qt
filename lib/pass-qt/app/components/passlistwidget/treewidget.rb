@@ -7,6 +7,11 @@ module PassQt
         signal "passfile_selected(QString,QString)"
         signal "passfolder_selected(QString,QString)"
         slot "_on_item_clicked(QTreeWidgetItem*,int)"
+        slot "_on_new_password_action_triggered()"
+        slot "_on_new_otp_action_triggered()"
+        slot "_on_delete_action_triggered()"
+        slot "_on_refresh_action_triggered()"
+        slot "_on_open_action_triggered()"
       end
 
       def initialize
@@ -15,9 +20,24 @@ module PassQt
         @store = QDir.new("")
         @dataitems = {}
 
-        @fileiconprovider = QFileIconProvider.new
+        initialize_actions
+        initialize_fileiconprovider
 
         item_clicked.connect(self, :_on_item_clicked)
+      end
+
+      def context_menu_event(evt)
+        menu = QMenu.new("", self)
+
+        menu.add_action(@new_password_action)
+        menu.add_action(@new_otp_action)
+        menu.add_action(@delete_action)
+
+        menu.add_separator
+        menu.add_action(@refresh_action)
+        menu.add_action(@open_action)
+
+        menu.exec(evt.global_pos)
       end
 
       def reinitialize_store(store)
@@ -54,7 +74,7 @@ module PassQt
         end
       end
 
-      def search_passfile(text)
+      def update_passname_filter(text)
         if text.empty?
           @dataitems.each do |_, item|
             item.treewidgetitem.set_hidden(false)
@@ -94,6 +114,24 @@ module PassQt
 
       private
 
+      def initialize_actions
+        @new_password_action = initialize_actions_act(QIcon::ThemeIcon::DocumentNew, "New Password", :_on_new_password_action_triggered)
+        @new_otp_action = initialize_actions_act(QIcon::ThemeIcon::DocumentNew, "New OTP", :_on_new_otp_action_triggered)
+        @delete_action = initialize_actions_act(QIcon::ThemeIcon::EditDelete, "Delete", :_on_delete_action_triggered)
+        @refresh_action = initialize_actions_act(QIcon::ThemeIcon::ViewRefresh, "Refresh", :_on_refresh_action_triggered)
+        @open_action = initialize_actions_act(QIcon::ThemeIcon::FolderVisiting, "Open Store With File Explorer", :_on_open_action_triggered)
+      end
+
+      def initialize_actions_act(icon, text, slot)
+        action = QAction.new(QIcon.from_theme(icon), text, self)
+        action.triggered.connect(self, slot)
+        action
+      end
+
+      def initialize_fileiconprovider
+        @fileiconprovider = QFileIconProvider.new
+      end
+
       def h_passfile?(fileinfo)
         case fileinfo
         when QFileInfo then fileinfo.suffix.downcase == "gpg"
@@ -108,6 +146,21 @@ module PassQt
         h_passfile?(filepath) ?
           passfile_selected.emit(@store.absolute_path, dataitem.passname) :
           passfolder_selected.emit(@store.absolute_path, dataitem.passname)
+      end
+
+      def _on_new_password_action_triggered
+      end
+
+      def _on_new_otp_action_triggered
+      end
+
+      def _on_delete_action_triggered
+      end
+
+      def _on_refresh_action_triggered
+      end
+
+      def _on_open_action_triggered
       end
     end
   end

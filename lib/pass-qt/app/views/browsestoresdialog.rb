@@ -42,9 +42,9 @@ module PassQt
 
     def initialize_tablewidget
       @tablewidget = QWidget.new
-      @tablewidget.set_object_name("TableWidget")
+      @tablewidget.set_object_name("browsestoresdialog_tablewidget")
       @tablewidget.set_style_sheet("
-        QWidget#TableWidget {
+        #browsestoresdialog_tablewidget {
           min-width: 600px;
           background: white;
         }
