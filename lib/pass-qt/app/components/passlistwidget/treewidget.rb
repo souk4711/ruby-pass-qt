@@ -161,6 +161,8 @@ module PassQt
       end
 
       def _on_open_action_triggered
+        url = QUrl.from_local_file(@store.absolute_path)
+        QDesktopServices.open_url(url)
       end
     end
   end
