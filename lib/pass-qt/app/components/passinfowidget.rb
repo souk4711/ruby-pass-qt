@@ -14,11 +14,13 @@ module PassQt
 
       initialize_form
       initialize_otpform
+      initialize_folderform
       initialize_infoframe
 
       @stackedlayout = QStackedLayout.new
       @stackedlayout.add_widget(@form)
       @stackedlayout.add_widget(@otpform)
+      @stackedlayout.add_widget(@folderform)
       @stackedlayout.add_widget(@infoframe)
 
       mainlayout = QVBoxLayout.new(self)
@@ -50,6 +52,8 @@ module PassQt
       @store = store
       @passname = passname
       use_outinfolabel("")
+
+      use_folderform
     end
 
     private
@@ -70,10 +74,10 @@ module PassQt
 
       @form = QWidget.new
       formlayout = QFormLayout.new(@form)
-      formlayout.add_row(QLabel.new("File"), @passnameinput)
-      formlayout.add_row(QLabel.new("Username"), @usernameinput)
-      formlayout.add_row(QLabel.new("Password"), @passwordinput)
-      formlayout.add_row(QLabel.new("Website"), @websiteinput)
+      formlayout.add_row(initialize_form_label("File"), @passnameinput)
+      formlayout.add_row(initialize_form_label("Username"), @usernameinput)
+      formlayout.add_row(initialize_form_label("Password"), @passwordinput)
+      formlayout.add_row(initialize_form_label("Website"), @websiteinput)
     end
 
     def initialize_otpform
@@ -90,9 +94,25 @@ module PassQt
 
       @otpform = QWidget.new
       otpformlayout = QFormLayout.new(@otpform)
-      otpformlayout.add_row(QLabel.new("File"), @otppassnameinput)
-      otpformlayout.add_row(QLabel.new("OTP URI"), @otppasswordinput)
-      otpformlayout.add_row(QLabel.new("OTP Code"), @otpcodeinput)
+      otpformlayout.add_row(initialize_form_label("File"), @otppassnameinput)
+      otpformlayout.add_row(initialize_form_label("OTP URI"), @otppasswordinput)
+      otpformlayout.add_row(initialize_form_label("OTP Code"), @otpcodeinput)
+    end
+
+    def initialize_folderform
+      @folderpassnameinput = initialize_form_inputfield
+      initialize_form_inputfield_copyaction(@folderpassnameinput)
+
+      @folderform = QWidget.new
+      folderformlayout = QFormLayout.new(@folderform)
+      folderformlayout.add_row(initialize_form_label("Folder"), @folderpassnameinput)
+    end
+
+    def initialize_form_label(text)
+      label = QLabel.new(text)
+      label.set_alignment(Qt::AlignRight)
+      label.set_style_sheet("min-width: 80px; padding-right: 4px;")
+      label
     end
 
     def initialize_form_inputfield
@@ -149,6 +169,11 @@ module PassQt
         otpcode = data["stdout"].rstrip
         @otpcodeinput.set_text(otpcode)
       }, on_failure: ->(_) {})
+    end
+
+    def use_folderform
+      @folderpassnameinput.set_text(@passname)
+      @stackedlayout.set_current_widget(@folderform)
     end
 
     def use_outinfolabel(info)

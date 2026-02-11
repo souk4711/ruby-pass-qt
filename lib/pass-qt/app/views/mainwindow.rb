@@ -65,7 +65,7 @@ module PassQt
     end
 
     def _on_passlistwidget_store_changed(store)
-      @passinfowidget.reinitialize_passfolder(store, "")
+      @passinfowidget.reinitialize_passfolder(store, ".")
     end
 
     def _on_passlistwidget_passfile_selected(store, passname)
