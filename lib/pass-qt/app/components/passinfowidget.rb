@@ -27,13 +27,13 @@ module PassQt
       mainlayout.add_spacing(76)
       mainlayout.add_layout(@stackedlayout)
 
-      use_outinfolabel("")
+      use_outinfoframe("")
     end
 
     def reinitialize_passfile(store, passname)
       @store = store
       @passname = passname
-      use_outinfolabel("")
+      use_outinfoframe("")
 
       Pass.show(@store, @passname, on_success: ->(data) {
         formdata = h_parse_passfile(data)
@@ -44,14 +44,14 @@ module PassQt
         end
       }, on_failure: ->(data) {
         errinfo = data["stderr"]
-        use_errinfolabel(errinfo)
+        use_errinfoframe(errinfo)
       })
     end
 
     def reinitialize_passfolder(store, passname)
       @store = store
       @passname = passname
-      use_outinfolabel("")
+      use_outinfoframe("")
 
       use_folderform
     end
@@ -176,7 +176,7 @@ module PassQt
       @stackedlayout.set_current_widget(@folderform)
     end
 
-    def use_outinfolabel(info)
+    def use_outinfoframe(info)
       @errinfolabel.set_hidden(true)
 
       @outinfolabel.set_text(info)
@@ -184,7 +184,7 @@ module PassQt
       @stackedlayout.set_current_widget(@infoframe)
     end
 
-    def use_errinfolabel(info)
+    def use_errinfoframe(info)
       @outinfolabel.set_hidden(true)
 
       @errinfolabel.set_text(info)
