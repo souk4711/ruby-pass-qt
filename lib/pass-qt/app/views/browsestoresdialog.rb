@@ -31,11 +31,11 @@ module PassQt
     def initialize_toolbar
       @toolbar = QWidget.new
 
-      btn = QPushButton.new(QIcon.from_theme(QIcon::ThemeIcon::ListAdd), "")
-      btn.set_style_sheet("min-width: 32px; max-width: 32px;")
+      btn = QPushButton.new(QIcon.from_theme(QIcon::ThemeIcon::ListAdd), "Add")
       btn.clicked.connect(self, :_on_list_add_button_clicked)
 
       qhboxlayout = QHBoxLayout.new(@toolbar)
+      qhboxlayout.add_widget(QLabel.new("Password Stores"))
       qhboxlayout.add_stretch
       qhboxlayout.add_widget(btn)
     end
@@ -62,9 +62,9 @@ module PassQt
 
       label = QLabel.new(fullpath)
       tableitemlayout.add_widget(label)
+      tableitemlayout.add_stretch
 
-      btn = QPushButton.new(QIcon.from_theme(QIcon::ThemeIcon::ListRemove), "")
-      btn.set_style_sheet("min-width: 32px; max-width: 32px;")
+      btn = QPushButton.new(QIcon.from_theme(QIcon::ThemeIcon::ListRemove), "Remove")
       btn.clicked.connect(self, :_on_list_remove_button_clicked)
       tableitemlayout.add_widget(btn)
 
@@ -84,7 +84,7 @@ module PassQt
     end
 
     def _on_list_add_button_clicked
-      dir = QFileDialog.get_existing_directory(self, "Select Store Folder", QDir.home_path)
+      dir = QFileDialog.get_existing_directory(self, "", QDir.home_path)
       return if dir.empty?
 
       if @dataitems.key?(dir)
