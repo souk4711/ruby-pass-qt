@@ -18,8 +18,6 @@ module PassQt
     def exec
       @mainwindow.show
       @app.exec
-    ensure
-      @mainwindow.delete_now
     end
   end
 end
