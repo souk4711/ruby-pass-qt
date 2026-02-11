@@ -50,6 +50,7 @@ module PassQt
 
     def initialize_searchbar
       @searchbar = QLineEdit.new
+      @searchbar.set_clear_button_enabled(true)
       @searchbar.set_placeholder_text("List passwords that match passname...")
       @searchbar.text_changed.connect(self, :_on_searchbar_text_changed)
     end
