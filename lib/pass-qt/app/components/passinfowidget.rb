@@ -25,31 +25,31 @@ module PassQt
       mainlayout.add_spacing(76)
       mainlayout.add_layout(@stackedlayout)
 
-      update_outinfolabel("")
+      use_outinfolabel("")
     end
 
     def reinitialize_passfile(store, passname)
       @store = store
       @passname = passname
+      use_outinfolabel("")
 
       Pass.show(@store, @passname, on_success: ->(data) {
         formdata = h_parse_passfile(data)
         if formdata["password"].start_with?("otpauth:")
-          update_otpform(formdata)
+          use_otpform(formdata)
         else
-          update_form(formdata)
+          use_form(formdata)
         end
       }, on_failure: ->(data) {
         errinfo = data["stderr"]
-        update_errinfolabel(errinfo)
+        use_errinfolabel(errinfo)
       })
     end
 
     def reinitialize_passfolder(store, passname)
       @store = store
       @passname = passname
-
-      update_outinfolabel("")
+      use_outinfolabel("")
     end
 
     private
@@ -126,7 +126,7 @@ module PassQt
       infoframelayout.add_stretch
     end
 
-    def update_form(formdata)
+    def use_form(formdata)
       @passnameinput.set_text(@passname)
       @passwordinput.set_text(formdata["password"])
       @passwordinput.set_echo_mode(QLineEdit::Password)
@@ -136,7 +136,7 @@ module PassQt
       @stackedlayout.set_current_widget(@form)
     end
 
-    def update_otpform(formdata)
+    def use_otpform(formdata)
       @otppassnameinput.set_text(@passname)
       @otppasswordinput.set_text(formdata["password"])
       @otppasswordinput.set_cursor_position(0)
@@ -151,7 +151,7 @@ module PassQt
       }, on_failure: ->(_) {})
     end
 
-    def update_outinfolabel(info)
+    def use_outinfolabel(info)
       @errinfolabel.set_hidden(true)
 
       @outinfolabel.set_text(info)
@@ -159,7 +159,7 @@ module PassQt
       @stackedlayout.set_current_widget(@infoframe)
     end
 
-    def update_errinfolabel(info)
+    def use_errinfolabel(info)
       @outinfolabel.set_hidden(true)
 
       @errinfolabel.set_text(info)
