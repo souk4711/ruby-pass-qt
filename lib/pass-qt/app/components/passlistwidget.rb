@@ -58,6 +58,7 @@ module PassQt
     def initialize_treewidget
       @treewidget = TreeWidget.new
       @treewidget.set_header_hidden(true)
+      @treewidget.store_changed.connect(self, :store_changed)
       @treewidget.passfile_selected.connect(self, :passfile_selected)
       @treewidget.passfolder_selected.connect(self, :passfolder_selected)
     end
@@ -71,10 +72,7 @@ module PassQt
 
     def _on_combobox_current_text_changed(_text)
       store = @combobox.current_data.value
-
       @treewidget.reinitialize_store(store)
-      @treewidget.expand_all
-      store_changed.emit(store)
 
       @searchbar.clear
       QTimer.single_shot(0, @searchbar, :set_focus)

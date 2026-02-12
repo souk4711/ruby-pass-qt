@@ -14,6 +14,7 @@ module PassQt
       initialize_toolbar
       initialize_central_widget
 
+      set_context_menu_policy(Qt::NoContextMenu)
       PassQt.settings.GET_mainwindow_geometry_and_restore_to(self)
     end
 
@@ -30,7 +31,7 @@ module PassQt
       browse_action.set_tool_tip("Browse password stores")
       browse_action.triggered.connect(self, :_on_browse_action_triggered)
 
-      toolbar = add_tool_bar("")
+      toolbar = add_tool_bar("ToolBar")
       toolbar.set_object_name("mainwindow_toolbar")
       toolbar.set_movable(false)
       toolbar.add_action(browse_action)
@@ -65,7 +66,7 @@ module PassQt
     end
 
     def _on_passlistwidget_store_changed(store)
-      @passinfowidget.reinitialize_passfolder(store, ".")
+      @passinfowidget.reinitialize_infoframe("")
     end
 
     def _on_passlistwidget_passfile_selected(store, passname)

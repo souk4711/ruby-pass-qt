@@ -27,13 +27,13 @@ module PassQt
       mainlayout.add_spacing(76)
       mainlayout.add_layout(@stackedlayout)
 
-      use_outinfoframe("")
+      use_infoframe
     end
 
     def reinitialize_passfile(store, passname)
       @store = store
       @passname = passname
-      use_outinfoframe("")
+      use_infoframe
 
       Pass.show(@store, @passname, on_success: ->(data) {
         formdata = h_parse_passfile(data)
@@ -44,16 +44,21 @@ module PassQt
         end
       }, on_failure: ->(data) {
         errinfo = data["stderr"]
-        use_errinfoframe(errinfo)
+        use_infoframe(errinfo)
       })
     end
 
     def reinitialize_passfolder(store, passname)
       @store = store
       @passname = passname
-      use_outinfoframe("")
-
+      use_infoframe
       use_folderform
+    end
+
+    def reinitialize_infoframe(text)
+      @store = QString.new
+      @passname = QString.new
+      use_infoframe(text)
     end
 
     private
@@ -133,16 +138,12 @@ module PassQt
     end
 
     def initialize_infoframe
-      @outinfolabel = QLabel.new
-      @outinfolabel.set_style_sheet("color: black;")
-
-      @errinfolabel = QLabel.new
-      @errinfolabel.set_style_sheet("color: red;")
+      @infolabel = QLabel.new
+      @infolabel.set_text_format(Qt::RichText)
 
       @infoframe = QWidget.new
       infoframelayout = QVBoxLayout.new(@infoframe)
-      infoframelayout.add_widget(@outinfolabel)
-      infoframelayout.add_widget(@errinfolabel)
+      infoframelayout.add_widget(@infolabel)
       infoframelayout.add_stretch
     end
 
@@ -176,19 +177,8 @@ module PassQt
       @stackedlayout.set_current_widget(@folderform)
     end
 
-    def use_outinfoframe(info)
-      @errinfolabel.set_hidden(true)
-
-      @outinfolabel.set_text(info)
-      @outinfolabel.set_hidden(false)
-      @stackedlayout.set_current_widget(@infoframe)
-    end
-
-    def use_errinfoframe(info)
-      @outinfolabel.set_hidden(true)
-
-      @errinfolabel.set_text(info)
-      @errinfolabel.set_hidden(false)
+    def use_infoframe(info = "")
+      @infolabel.set_text(info)
       @stackedlayout.set_current_widget(@infoframe)
     end
 

@@ -4,6 +4,7 @@ module PassQt
       DataItem = Struct.new(:passname, :treewidgetitem)
 
       q_object do
+        signal "store_changed(QString)"
         signal "passfile_selected(QString,QString)"
         signal "passfolder_selected(QString,QString)"
         slot "_on_item_clicked(QTreeWidgetItem*,int)"
@@ -17,7 +18,7 @@ module PassQt
       def initialize
         super
 
-        @store = QDir.new("")
+        @store = QString.new
         @dataitems = {}
 
         initialize_actions
@@ -43,9 +44,10 @@ module PassQt
       def reinitialize_store(store)
         clear
 
-        @store = QDir.new(store)
+        @store = store
         @dataitems = {}
 
+        store_root_path = QDir.new(@store)
         dirs = [store]
         until dirs.empty?
           dir = dirs.shift
@@ -58,10 +60,10 @@ module PassQt
 
             if entry.dir?
               dirs << filepath
-              passname = @store.relative_file_path(filepath)
+              passname = store_root_path.relative_file_path(filepath)
             elsif entry.file?
               next unless h_passfile?(entry)
-              passname = @store.relative_file_path(filepath)
+              passname = store_root_path.relative_file_path(filepath)
               passname = passname[0, passname.size - entry.suffix.size - 1]
             else
               next
@@ -72,6 +74,9 @@ module PassQt
             @dataitems[filepath] = DataItem.new(passname, item)
           end
         end
+
+        expand_all
+        store_changed.emit(@store)
       end
 
       def update_passname_filter(text)
@@ -144,8 +149,8 @@ module PassQt
         filepath = item.data(1, Qt::DisplayRole).value
         dataitem = @dataitems[filepath]
         h_passfile?(filepath) ?
-          passfile_selected.emit(@store.absolute_path, dataitem.passname) :
-          passfolder_selected.emit(@store.absolute_path, dataitem.passname)
+          passfile_selected.emit(@store, dataitem.passname) :
+          passfolder_selected.emit(@store, dataitem.passname)
       end
 
       def _on_new_password_action_triggered
@@ -158,10 +163,11 @@ module PassQt
       end
 
       def _on_refresh_action_triggered
+        reinitialize_store(@store)
       end
 
       def _on_open_action_triggered
-        url = QUrl.from_local_file(@store.absolute_path)
+        url = QUrl.from_local_file(@store)
         QDesktopServices.open_url(url)
       end
     end
