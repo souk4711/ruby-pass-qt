@@ -68,13 +68,13 @@ module PassQt
       btn.clicked.connect(self, :_on_list_remove_button_clicked)
       tableitemlayout.add_widget(btn)
 
-      @tablewidget.layout.add_widget(tableitem)
       @dataitems[fullpath] = DataItem.new(tableitem)
+      @tablewidget.layout.add_widget(tableitem)
     end
 
     def update_tablewidget_removetableitem(tableitem)
-      tableitem.delete_now
       @dataitems.delete_if { |_, item| item.tablewidgetitem == tableitem }
+      tableitem.delete_now
     end
 
     def h_put_stores
@@ -88,13 +88,13 @@ module PassQt
       return if dir.empty?
 
       if @dataitems.key?(dir)
-        message = "store #{dir} already exists."
+        message = "<p>The following store already exists.</p>#{dir}"
         QMessageBox.critical(self, "", message)
         return
       end
 
       unless QDir.new(dir).exists(".gpg-id")
-        message = "store #{dir} invalid, the .gpg-id file is missing."
+        message = "<p>The following store is invalid, because the .gpg-id file is missing.</p>#{dir}"
         QMessageBox.critical(self, "", message)
         return
       end

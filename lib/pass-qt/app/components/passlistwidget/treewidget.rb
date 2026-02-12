@@ -38,6 +38,9 @@ module PassQt
         menu.add_action(@refresh_action)
         menu.add_action(@open_action)
 
+        enabled = !selected_items.empty?
+        @delete_action.set_enabled(enabled)
+
         menu.exec(evt.global_pos)
       end
 
@@ -137,6 +140,10 @@ module PassQt
         @fileiconprovider = QFileIconProvider.new
       end
 
+      def reinitialize
+        reinitialize_store(@store)
+      end
+
       def h_passfile?(fileinfo)
         case fileinfo
         when QFileInfo then fileinfo.suffix.downcase == "gpg"
@@ -160,10 +167,21 @@ module PassQt
       end
 
       def _on_delete_action_triggered
+        item = selected_items[0]
+        filepath = item.data(1, Qt::DisplayRole).value
+        dataitem = @dataitems[filepath]
+
+        message = "<p>Do you really want to delete this item?</p>#{dataitem.passname}"
+        reply = QMessageBox.question(self, "", message)
+        return if reply == QMessageBox::No
+
+        file = QFile.new(filepath)
+        file.move_to_trash
+        reinitialize
       end
 
       def _on_refresh_action_triggered
-        reinitialize_store(@store)
+        reinitialize
       end
 
       def _on_open_action_triggered
