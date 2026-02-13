@@ -161,6 +161,18 @@ module PassQt
       end
 
       def _on_new_password_action_triggered
+        item = selected_items[0]
+        if item
+          filepath = item.data(1, Qt::DisplayRole).value
+          fileinfo = QFileInfo.new(filepath)
+          folder = fileinfo.dir? ? fileinfo.absolute_file_path : fileinfo.absolute_path
+          folder = QDir.new(@store).relative_file_path(folder)
+        else
+          folder = ""
+        end
+
+        dialog = NewPasswordDialog.new(@store, folder)
+        dialog.show
       end
 
       def _on_new_otp_action_triggered
