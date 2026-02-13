@@ -10,4 +10,11 @@ module Pass
     envs = {PASSWORD_STORE_DIR: store}
     Contrib::Process.execute("pass", arguments, envs:, on_success:, on_failure:)
   end
+
+  def self.otp_insert(store, passname, password, on_success:, on_failure:)
+    arguments = QStringList.new << "otp" << "insert" << passname
+    stdin = password
+    envs = {PASSWORD_STORE_DIR: store}
+    Contrib::Process.execute("pass", arguments, stdin:, envs:, on_success:, on_failure:)
+  end
 end

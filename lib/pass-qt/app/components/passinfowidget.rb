@@ -139,8 +139,6 @@ module PassQt
 
     def initialize_infoframe
       @infolabel = QLabel.new
-      @infolabel.set_text_format(Qt::RichText)
-
       @infoframe = QWidget.new
       infoframelayout = QVBoxLayout.new(@infoframe)
       infoframelayout.add_widget(@infolabel)

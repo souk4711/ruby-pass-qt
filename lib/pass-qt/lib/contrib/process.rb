@@ -9,7 +9,7 @@ module Contrib
       new._execute(program, arguments, **kwargs)
     end
 
-    def _execute(program, arguments, envs: nil, on_success: nil, on_failure: nil)
+    def _execute(program, arguments, stdin: nil, envs: nil, on_success: nil, on_failure: nil)
       process = QProcess.new
       @on_success = on_success
       @on_failure = on_failure
@@ -21,6 +21,8 @@ module Contrib
       end
 
       process.start(program, arguments)
+      process.write(stdin.to_s) if stdin
+      process.close_write_channel
       process.error_occurred.connect(self, :_on_process_error_occurred)
       process.finished.connect(self, :_on_process_finished)
     end
