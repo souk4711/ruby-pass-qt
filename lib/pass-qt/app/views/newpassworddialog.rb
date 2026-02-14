@@ -94,21 +94,48 @@ module PassQt
       layout.add_widget(@cancelbutton)
     end
 
+    def update_form_errinfo(info)
+      if info.empty?
+        @errinfolabel.set_text("")
+        @errinfolabel.set_hidden(true)
+        return
+      end
+
+      @errinfolabel.set_text(info)
+      @errinfolabel.set_hidden(false)
+    end
+
+    def validate_form
+      update_form_errinfo("")
+
+      {
+        "File" => @passnameinput,
+        "Username" => @usernameinput,
+        "Password" => @passwordinput,
+        "Website" => @websiteinput
+      }.each do |k, v|
+        next unless v.text.empty?
+
+        update_form_errinfo("#{k} can't be blank")
+        return false
+      end
+
+      true
+    end
+
     def _on_okbutton_clicked
+      return unless validate_form
+
       store = @store
       passname = @passnameinput.text
       password = @passwordinput.text
       username = @usernameinput.text
       website = @websiteinput.text
-      @errinfolabel.set_text("")
-      @errinfolabel.set_hidden(true)
-
       extra = "Username: #{username}\nWebsite: #{website}\n"
       Pass.insert(store, passname, password, extra, on_success: ->(data) {
         close
       }, on_failure: ->(data) {
-        @errinfolabel.set_text(data["stderr"].strip)
-        @errinfolabel.set_hidden(false)
+        update_form_errinfo(data["stderr"].strip)
       })
     end
 
