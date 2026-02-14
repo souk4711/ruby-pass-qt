@@ -6,11 +6,12 @@ module PassQt
       slot "_on_view_action_triggered()"
     end
 
-    def initialize(store, folder)
+    def initialize(store, folder, on_success:)
       super()
 
       @store = store
       @folder = folder
+      @on_success = on_success
 
       initialize_form
       initialize_btngroup
@@ -144,7 +145,8 @@ module PassQt
       username = @usernameinput.text
       website = @websiteinput.text
       extra = "Username: #{username}\nWebsite: #{website}\n"
-      Pass.insert(store, passname, password, extra, on_success: ->(data) {
+      Pass.insert(store, passname, password, extra, on_success: ->(_) {
+        @on_success.call(passname)
         close
       }, on_failure: ->(data) {
         update_form_errinfo(data["stderr"].strip)

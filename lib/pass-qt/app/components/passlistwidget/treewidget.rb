@@ -140,8 +140,17 @@ module PassQt
         @fileiconprovider = QFileIconProvider.new
       end
 
-      def reinitialize
+      def reinitialize(selected_passname: nil)
         reinitialize_store(@store)
+
+        if selected_passname
+          @dataitems.each do |_, item|
+            if item.passname == selected_passname
+              item.treewidgetitem.set_selected(true)
+              break
+            end
+          end
+        end
       end
 
       def h_passfile?(fileinfo)
@@ -150,6 +159,11 @@ module PassQt
         when QString then fileinfo.ends_with(".gpg", Qt::CaseInsensitive)
         else raise "unreachable!"
         end
+      end
+
+      def h_folderpath(fileinfo)
+        folder = fileinfo.dir? ? fileinfo.absolute_file_path : fileinfo.absolute_path
+        QDir.new(@store).relative_file_path(folder)
       end
 
       def _on_item_clicked(item, _column)
@@ -164,14 +178,14 @@ module PassQt
         item = selected_items[0]
         if item
           filepath = item.data(1, Qt::DisplayRole).value
-          fileinfo = QFileInfo.new(filepath)
-          folder = fileinfo.dir? ? fileinfo.absolute_file_path : fileinfo.absolute_path
-          folder = QDir.new(@store).relative_file_path(folder)
+          folder = h_folderpath(QFileInfo.new(filepath))
         else
           folder = ""
         end
 
-        dialog = NewPasswordDialog.new(@store, folder)
+        dialog = NewPasswordDialog.new(@store, folder, on_success: ->(passname) {
+          reinitialize(selected_passname: passname)
+        })
         dialog.show
       end
 
@@ -179,14 +193,14 @@ module PassQt
         item = selected_items[0]
         if item
           filepath = item.data(1, Qt::DisplayRole).value
-          fileinfo = QFileInfo.new(filepath)
-          folder = fileinfo.dir? ? fileinfo.absolute_file_path : fileinfo.absolute_path
-          folder = QDir.new(@store).relative_file_path(folder)
+          folder = h_folderpath(QFileInfo.new(filepath))
         else
           folder = ""
         end
 
-        dialog = NewOneTimePasswordDialog.new(@store, folder)
+        dialog = NewOneTimePasswordDialog.new(@store, folder, on_success: ->(passname) {
+          reinitialize(selected_passname: passname)
+        })
         dialog.show
       end
 

@@ -5,11 +5,12 @@ module PassQt
       slot "_on_cancelbutton_clicked()"
     end
 
-    def initialize(store, folder)
+    def initialize(store, folder, on_success:)
       super()
 
       @store = store
       @folder = folder
+      @on_success = on_success
 
       initialize_form
       initialize_btngroup
@@ -117,7 +118,8 @@ module PassQt
       store = @store
       passname = @passnameinput.text
       password = @passwordinput.text
-      Pass.otp_insert(store, passname, password, on_success: ->(data) {
+      Pass.otp_insert(store, passname, password, on_success: ->(_) {
+        @on_success.call(passname)
         close
       }, on_failure: ->(data) {
         update_form_errinfo(data["stderr"].strip)

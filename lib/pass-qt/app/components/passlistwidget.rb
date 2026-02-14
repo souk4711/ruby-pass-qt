@@ -8,6 +8,7 @@ module PassQt
       signal "passfolder_selected(QString,QString)"
       slot "_on_combobox_current_text_changed(QString)"
       slot "_on_searchbar_text_changed(QString)"
+      slot "_on_treewidget_store_changed(QString)"
     end
 
     def initialize
@@ -58,7 +59,7 @@ module PassQt
     def initialize_treewidget
       @treewidget = TreeWidget.new
       @treewidget.set_header_hidden(true)
-      @treewidget.store_changed.connect(self, :store_changed)
+      @treewidget.store_changed.connect(self, :_on_treewidget_store_changed)
       @treewidget.passfile_selected.connect(self, :passfile_selected)
       @treewidget.passfolder_selected.connect(self, :passfolder_selected)
     end
@@ -80,6 +81,11 @@ module PassQt
 
     def _on_searchbar_text_changed(text)
       @treewidget.update_passname_filter(text)
+    end
+
+    def _on_treewidget_store_changed(store)
+      @searchbar.clear
+      store_changed.emit(store)
     end
   end
 end
