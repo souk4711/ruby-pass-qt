@@ -25,6 +25,7 @@ module Contrib
       process.close_write_channel
       process.error_occurred.connect(self, :_on_process_error_occurred)
       process.finished.connect(self, :_on_process_finished)
+      process
     end
 
     private

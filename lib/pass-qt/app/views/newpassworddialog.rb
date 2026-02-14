@@ -3,6 +3,7 @@ module PassQt
     q_object do
       slot "_on_okbutton_clicked()"
       slot "_on_cancelbutton_clicked()"
+      slot "_on_view_action_triggered()"
     end
 
     def initialize(store, folder)
@@ -38,6 +39,12 @@ module PassQt
 
       @passwordlabel = initialize_form_label("Password")
       @passwordinput = initialize_form_inputfield("")
+      initialize_form_inputfield_viewaction(@passwordinput)
+
+      @passwordinput.set_echo_mode(QLineEdit::Password)
+      Pass.pwgen(16, on_success: ->(data) {
+        @passwordinput.set_text(data["stdout"].strip)
+      }, on_failure: ->(_) {})
 
       @usernamelabel = initialize_form_label("Username")
       @usernameinput = initialize_form_inputfield("johndoe")
@@ -78,6 +85,11 @@ module PassQt
       input = QLineEdit.new
       input.set_placeholder_text(placeholder)
       input
+    end
+
+    def initialize_form_inputfield_viewaction(input)
+      action = input.add_action(QIcon.from_theme(QIcon::ThemeIcon::DocumentPrintPreview), QLineEdit::TrailingPosition)
+      action.triggered.connect(self, :_on_view_action_triggered)
     end
 
     def initialize_btngroup
@@ -141,6 +153,15 @@ module PassQt
 
     def _on_cancelbutton_clicked
       close
+    end
+
+    def _on_view_action_triggered
+      input = sender.parent
+      case input.echo_mode
+      when QLineEdit::Normal then input.set_echo_mode(QLineEdit::Password)
+      when QLineEdit::Password then input.set_echo_mode(QLineEdit::Normal)
+      else raise "unreachable!"
+      end
     end
   end
 end

@@ -24,4 +24,9 @@ module Pass
     envs = {PASSWORD_STORE_DIR: store}
     Contrib::Process.execute("pass", arguments, stdin:, envs:, on_success:, on_failure:)
   end
+
+  def self.pwgen(pw_length, on_success:, on_failure:)
+    arguments = QStringList.new << "-cnysB" << pw_length.to_s << "1"
+    Contrib::Process.execute("pwgen", arguments, on_success:, on_failure:)
+  end
 end
