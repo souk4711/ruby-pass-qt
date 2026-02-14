@@ -44,7 +44,7 @@ module PassQt
         end
       }, on_failure: ->(data) {
         errinfo = data["stderr"]
-        use_infoframe(errinfo)
+        use_infoframe_err(errinfo)
       })
     end
 
@@ -55,10 +55,10 @@ module PassQt
       use_folderform
     end
 
-    def reinitialize_infoframe(text)
+    def reinitialize_infoframe
       @store = QString.new
       @passname = QString.new
-      use_infoframe(text)
+      use_infoframe
     end
 
     private
@@ -176,6 +176,13 @@ module PassQt
     end
 
     def use_infoframe(info = "")
+      @infolabel.set_style_sheet("color: black;")
+      @infolabel.set_text(info)
+      @stackedlayout.set_current_widget(@infoframe)
+    end
+
+    def use_infoframe_err(info)
+      @infolabel.set_style_sheet("color: red;")
       @infolabel.set_text(info)
       @stackedlayout.set_current_widget(@infoframe)
     end

@@ -66,7 +66,7 @@ module PassQt
     end
 
     def _on_passlistwidget_store_changed(store)
-      @passinfowidget.reinitialize_infoframe("")
+      @passinfowidget.reinitialize_infoframe
     end
 
     def _on_passlistwidget_passfile_selected(store, passname)

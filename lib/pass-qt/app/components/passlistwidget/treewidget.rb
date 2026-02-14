@@ -140,15 +140,13 @@ module PassQt
         @fileiconprovider = QFileIconProvider.new
       end
 
-      def reinitialize(selected_passname: nil)
+      def reinitialize(selected_passname: "")
         reinitialize_store(@store)
 
-        if selected_passname
-          @dataitems.each do |_, item|
-            if item.passname == selected_passname
-              item.treewidgetitem.set_selected(true)
-              break
-            end
+        @dataitems.each do |_, item|
+          if item.passname == selected_passname
+            item.treewidgetitem.set_selected(true)
+            break
           end
         end
       end
@@ -219,7 +217,16 @@ module PassQt
       end
 
       def _on_refresh_action_triggered
-        reinitialize
+        item = selected_items[0]
+        if item
+          filepath = item.data(1, Qt::DisplayRole).value
+          dataitem = @dataitems[filepath]
+          passname = dataitem.passname
+        else
+          passname = ""
+        end
+
+        reinitialize(selected_passname: passname)
       end
 
       def _on_open_action_triggered
