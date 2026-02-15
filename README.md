@@ -12,7 +12,7 @@ A simple GUI for pass on Linux.
 ## Installation
 
 ```console
-$ gem install pass-qt
+$ gem install ruby-pass-qt
 ```
 
 ## Usage
