@@ -5,6 +5,7 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in pass-qt.gemspec
 gemspec
 
+# ruby-qt6
 %w[
   qtcore qtgui qtwidgets
 ].each do |lib|

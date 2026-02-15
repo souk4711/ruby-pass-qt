@@ -1,20 +1,20 @@
 PATH
   remote: ../ruby-qt6/qtcore
   specs:
-    ruby-qt6-qtcore (2.1.0)
+    ruby-qt6-qtcore (2.1.1)
       ruby-qt6-rice (= 2.1.0)
 
 PATH
   remote: ../ruby-qt6/qtgui
   specs:
-    ruby-qt6-qtgui (2.1.0)
+    ruby-qt6-qtgui (2.1.1)
       ruby-qt6-qtcore (~> 2.1.0)
       ruby-qt6-rice (= 2.1.0)
 
 PATH
   remote: ../ruby-qt6/qtwidgets
   specs:
-    ruby-qt6-qtwidgets (2.1.0)
+    ruby-qt6-qtwidgets (2.1.1)
       ruby-qt6-qtcore (~> 2.1.0)
       ruby-qt6-qtgui (~> 2.1.0)
       ruby-qt6-rice (= 2.1.0)
