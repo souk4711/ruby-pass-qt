@@ -177,6 +177,7 @@ module PassQt
         if item
           filepath = item.data(1, Qt::DisplayRole).value
           folder = h_folderpath(QFileInfo.new(filepath))
+          folder = "" if folder == "."
         else
           folder = ""
         end
@@ -192,6 +193,7 @@ module PassQt
         if item
           filepath = item.data(1, Qt::DisplayRole).value
           folder = h_folderpath(QFileInfo.new(filepath))
+          folder = "" if folder == "."
         else
           folder = ""
         end
