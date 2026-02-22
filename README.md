@@ -6,8 +6,9 @@ A simple GUI for pass on Linux.
 
 - [Ruby 3.4+](https://www.ruby-lang.org/)
 - [Qt 6.10+](https://www.qt.io/)
-- [pass](https://www.passwordstore.org/)
-- [pwgen](https://sourceforge.net/projects/pwgen/)
+- **one of the following password managers**
+    - [pass](https://www.passwordstore.org/) & [pwgen](https://sourceforge.net/projects/pwgen/)
+    - [gopass](https://github.com/gopasspw/gopass)
 
 ## Installation
 

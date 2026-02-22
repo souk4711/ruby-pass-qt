@@ -44,7 +44,7 @@ module PassQt
 
       @passwordinput.set_echo_mode(QLineEdit::Password)
       Pass.pwgen(16, on_success: ->(data) {
-        @passwordinput.set_text(data["stdout"].strip)
+        @passwordinput.set_text(data["stdout"].lines[0].strip)
       }, on_failure: ->(_) {})
 
       @usernamelabel = initialize_form_label("Username")
