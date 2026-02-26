@@ -58,6 +58,9 @@ module PassQt
 
           entry_list = QDir.new(dir).entry_info_list(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)
           entry_list.each do |entry|
+            next if entry.hidden?
+            next if entry.file_name.starts_with(".")
+
             filepath = entry.absolute_file_path
             next if @dataitems.key?(filepath)
 
