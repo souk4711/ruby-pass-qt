@@ -7,6 +7,7 @@ gemspec
 
 # ruby-qt6
 %w[
+  rice
   qtcore qtgui qtwidgets
 ].each do |lib|
   gem_name = "ruby-qt6-#{lib}"
