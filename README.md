@@ -1,11 +1,11 @@
-# Pass-Qt
+# PassQt
 
 A simple GUI for pass on Linux.
 
 ## Requirements
 
-- [Ruby 3.4+](https://www.ruby-lang.org/)
-- [Qt 6.10+](https://www.qt.io/)
+- [Ruby](https://www.ruby-lang.org/)
+- [Qt](https://www.qt.io/)
 - **one of the following password managers**
     - [pass](https://www.passwordstore.org/) & [pwgen](https://sourceforge.net/projects/pwgen/)
     - [gopass](https://github.com/gopasspw/gopass)
