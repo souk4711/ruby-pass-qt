@@ -32,7 +32,7 @@ $ pass-qt
 
 ## Screenshot
 
-![screenshot](https://github.com/souk4711/ruby-pass-qt/raw/main/screenshot.png)
+![screenshot](https://github.com/souk4711/ruby-pass-qt/raw/main/misc/screenshots/mainwindow.png)
 
 ## License
 
