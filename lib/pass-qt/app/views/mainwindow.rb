@@ -26,7 +26,7 @@ class MainWindow < RubyQt6::Bando::QMainWindow
   private
 
   def initialize_toolbar
-    browse_action = QAction.new(QIcon.from_theme(QIcon::ThemeIcon::Computer), "Browse")
+    browse_action = QAction.new(QIcon.from_theme(QIcon::ThemeIcon::Computer), "Browse", self)
     browse_action.set_tool_tip("Browse password stores")
     browse_action.triggered.connect(self, :_on_browse_action_triggered)
 

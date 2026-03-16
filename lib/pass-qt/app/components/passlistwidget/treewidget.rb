@@ -28,6 +28,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
 
     def context_menu_event(evt)
       menu = QMenu.new("", self)
+      menu.set_attribute(Qt::WA_DeleteOnClose)
 
       menu.add_action(@new_password_action)
       menu.add_action(@new_otp_action)
