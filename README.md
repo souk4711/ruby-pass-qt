@@ -12,22 +12,22 @@ A simple GUI for pass on Linux.
 
 ## Installation
 
-```console
-$ gem install ruby-pass-qt
+```sh
+gem install ruby-pass-qt
 ```
 
 ## Usage
 
 To initialize the password store:
 
-```console
-$ pass init new_gpg-id_or_email
+```sh
+pass init new_gpg-id_or_email
 ```
 
 To launch the GUI:
 
-```console
-$ pass-qt
+```sh
+pass-qt
 ```
 
 ## Screenshot
