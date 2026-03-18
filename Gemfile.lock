@@ -27,7 +27,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby-pass-qt (2.0.2)
+    ruby-pass-qt (2.0.3)
       ruby-qt6-qtwidgets (~> 6.0)
 
 GEM
