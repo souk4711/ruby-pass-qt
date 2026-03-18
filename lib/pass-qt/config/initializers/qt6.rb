@@ -1,3 +1,8 @@
 QApplication.set_organization_name("souk4711")
 QApplication.set_application_name("PassQt")
-QApplication.set_window_icon(QIcon.from_theme("pass-qt"))
+
+root_path = File.expand_path("../..", __dir__)
+QDir.add_search_path("assets", File.join(root_path, "app/assets"))
+
+icon = QIcon.new("assets:/app.svg")
+QApplication.set_window_icon(icon)
