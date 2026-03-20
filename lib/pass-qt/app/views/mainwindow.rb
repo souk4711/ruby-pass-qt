@@ -61,7 +61,7 @@ class MainWindow < RubyQt6::Bando::QMainWindow
   end
 
   def _on_browsestoresdialog_stores_changed
-    @passlistwidget.reinitialize_stores
+    @passlistwidget.refresh
   end
 
   def _on_passlistwidget_store_changed(store)

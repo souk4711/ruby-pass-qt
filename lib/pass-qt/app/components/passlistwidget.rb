@@ -25,7 +25,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
     update_combobox
   end
 
-  def reinitialize_stores
+  def refresh
     @combobox.block_signals(true).tap do |blocked|
       @combobox.clear
     ensure
