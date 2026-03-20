@@ -1,3 +1,5 @@
+require_relative "passinfowidget/helpers"
+
 class PassInfoWidget < RubyQt6::Bando::QWidget
   q_object do
     slot "_on_copy_action_triggered()"
@@ -29,13 +31,13 @@ class PassInfoWidget < RubyQt6::Bando::QWidget
     use_infoframe
   end
 
-  def reinitialize_passfile(store, passname)
+  def use_passfilecard(store, passname)
     @store = store
     @passname = passname
     use_infoframe
 
     Pass.show(@store, @passname, on_success: ->(data) {
-      formdata = h_parse_passfile(data)
+      formdata = parse_passfile(data)
       if formdata["password"].start_with?("otpauth:")
         use_otpform(formdata)
       else
@@ -47,14 +49,14 @@ class PassInfoWidget < RubyQt6::Bando::QWidget
     })
   end
 
-  def reinitialize_passfolder(store, passname)
+  def use_passfoldercard(store, passname)
     @store = store
     @passname = passname
     use_infoframe
     use_folderform
   end
 
-  def reinitialize_infoframe
+  def use_infocard
     @store = QString.new
     @passname = QString.new
     use_infoframe
@@ -184,29 +186,6 @@ class PassInfoWidget < RubyQt6::Bando::QWidget
     @infolabel.set_style_sheet("color: red;")
     @infolabel.set_text(info)
     @stackedlayout.set_current_widget(@infoframe)
-  end
-
-  def h_parse_passfile(data)
-    lines = data["stdout"].lines
-    password = lines[0][..-2]
-
-    username = ""
-    website = ""
-    lines.each do |line|
-      matched = line.match(/\A(\w+:\s*)?(.*)\n/)
-      next if matched.nil?
-
-      case matched[1]&.rstrip&.downcase
-      when "username:" then username = matched[2]
-      when "website:" then website = matched[2]
-      end
-    end
-
-    {
-      "password" => password,
-      "username" => username,
-      "website" => website
-    }
   end
 
   def _on_copy_action_triggered

@@ -65,14 +65,14 @@ class MainWindow < RubyQt6::Bando::QMainWindow
   end
 
   def _on_passlistwidget_store_changed(store)
-    @passinfowidget.reinitialize_infoframe
+    @passinfowidget.use_infocard
   end
 
   def _on_passlistwidget_passfile_selected(store, passname)
-    @passinfowidget.reinitialize_passfile(store, passname)
+    @passinfowidget.use_passfilecard(store, passname)
   end
 
   def _on_passlistwidget_passfolder_selected(store, passname)
-    @passinfowidget.reinitialize_passfolder(store, passname)
+    @passinfowidget.use_passfoldercard(store, passname)
   end
 end
