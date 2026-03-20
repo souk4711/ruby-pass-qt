@@ -37,7 +37,7 @@ class PassInfoWidget < RubyQt6::Bando::QWidget
     use_infoframe
 
     Pass.show(@store, @passname, on_success: ->(data) {
-      formdata = parse_passfile(data)
+      formdata = Helpers.parse_passfile(data)
       if formdata["password"].start_with?("otpauth:")
         use_otpform(formdata)
       else
