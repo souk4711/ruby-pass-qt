@@ -3,7 +3,6 @@ class PassListWidget < RubyQt6::Bando::QWidget
     DataItem = Struct.new(:passname, :treewidgetitem)
 
     q_object do
-      signal "store_changed(QString)"
       signal "passfile_selected(QString,QString)"
       signal "passfolder_selected(QString,QString)"
       slot "_on_item_clicked(QTreeWidgetItem*,int)"
@@ -44,7 +43,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
       menu.exec(evt.global_pos)
     end
 
-    def reinitialize_store(store)
+    def refresh(store, selected_passname: "")
       clear
 
       @store = store
@@ -82,7 +81,13 @@ class PassListWidget < RubyQt6::Bando::QWidget
       end
 
       expand_all
-      store_changed.emit(@store)
+
+      @dataitems.each do |_, item|
+        if item.passname == selected_passname
+          item.treewidgetitem.set_selected(true)
+          break
+        end
+      end
     end
 
     def update_passname_filter(text)
@@ -143,17 +148,6 @@ class PassListWidget < RubyQt6::Bando::QWidget
       @fileiconprovider = QFileIconProvider.new
     end
 
-    def reinitialize(selected_passname: "")
-      reinitialize_store(@store)
-
-      @dataitems.each do |_, item|
-        if item.passname == selected_passname
-          item.treewidgetitem.set_selected(true)
-          break
-        end
-      end
-    end
-
     def h_passfile?(fileinfo)
       case fileinfo
       when QFileInfo then fileinfo.suffix.downcase == "gpg"
@@ -186,7 +180,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
       end
 
       dialog = NewPasswordDialog.new(@store, folder, on_success: ->(passname) {
-        reinitialize(selected_passname: passname)
+        refresh(@store, selected_passname: passname)
       })
       dialog.show
     end
@@ -202,7 +196,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
       end
 
       dialog = NewOneTimePasswordDialog.new(@store, folder, on_success: ->(passname) {
-        reinitialize(selected_passname: passname)
+        refresh(@store, selected_passname: passname)
       })
       dialog.show
     end
@@ -218,7 +212,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
 
       file = QFile.new(filepath)
       file.move_to_trash
-      reinitialize
+      refresh(@store)
     end
 
     def _on_refresh_action_triggered
@@ -231,7 +225,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
         passname = ""
       end
 
-      reinitialize(selected_passname: passname)
+      refresh(@store, selected_passname: passname)
     end
 
     def _on_open_action_triggered
