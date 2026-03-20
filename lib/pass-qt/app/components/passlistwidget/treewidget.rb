@@ -1,7 +1,9 @@
+require_relative "treewidget/helpers"
+require_relative "treewidget/treebuilder"
+require_relative "treewidget/treefilter"
+
 class PassListWidget < RubyQt6::Bando::QWidget
   class TreeWidget < RubyQt6::Bando::QTreeWidget
-    DataItem = Struct.new(:passname, :treewidgetitem)
-
     q_object do
       signal "passfile_selected(QString,QString)"
       signal "passfolder_selected(QString,QString)"
@@ -20,7 +22,6 @@ class PassListWidget < RubyQt6::Bando::QWidget
       @dataitems = {}
 
       initialize_actions
-      initialize_fileiconprovider
 
       item_clicked.connect(self, :_on_item_clicked)
     end
@@ -43,45 +44,14 @@ class PassListWidget < RubyQt6::Bando::QWidget
       menu.exec(evt.global_pos)
     end
 
-    def refresh(store, selected_passname: "")
-      clear
-
+    def refresh(store, selected_passname: nil)
       @store = store
       @dataitems = {}
 
-      store_root_path = QDir.new(@store)
-      dirs = [store]
-      until dirs.empty?
-        dir = dirs.shift
-        diritem = @dataitems[dir]&.treewidgetitem || invisible_root_item
-
-        entry_list = QDir.new(dir).entry_info_list(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)
-        entry_list.each do |entry|
-          next if entry.hidden?
-          next if entry.file_name.starts_with(".")
-
-          filepath = entry.absolute_file_path
-          next if @dataitems.key?(filepath)
-
-          if entry.dir?
-            dirs << filepath
-            passname = store_root_path.relative_file_path(filepath)
-          elsif entry.file?
-            next unless h_passfile?(entry)
-            passname = store_root_path.relative_file_path(filepath)
-            passname = passname[0, passname.size - entry.suffix.size - 1]
-          else
-            next
-          end
-
-          item = QTreeWidgetItem.new(diritem, QStringList.new << entry.complete_base_name << filepath)
-          item.set_icon(0, @fileiconprovider.icon(entry))
-          @dataitems[filepath] = DataItem.new(passname, item)
-        end
-      end
+      builder = TreeBuilder.new
+      builder.perform(self, @store, @dataitems)
 
       expand_all
-
       @dataitems.each do |_, item|
         if item.passname == selected_passname
           item.treewidgetitem.set_selected(true)
@@ -91,41 +61,8 @@ class PassListWidget < RubyQt6::Bando::QWidget
     end
 
     def update_passname_filter(text)
-      if text.empty?
-        @dataitems.each do |_, item|
-          item.treewidgetitem.set_hidden(false)
-          item.treewidgetitem.set_selected(false)
-        end
-        return
-      end
-
-      re_options = QRegularExpression::UnanchoredWildcardConversion | QRegularExpression::NonPathWildcardConversion
-      re = QRegularExpression.from_wildcard(text, nil, re_options)
-
-      filepath_matched = Set.new
-      filepath_matched_1st = nil
-      @dataitems.each do |filepath, item|
-        has_match = re.match(item.passname).has_match
-        next unless has_match
-
-        if filepath_matched_1st.nil?
-          filepath_matched_1st = filepath if h_passfile?(filepath)
-        end
-
-        loop do
-          filepath_matched << filepath
-          filepath = QFileInfo.new(filepath).absolute_path
-          break unless @dataitems.key?(filepath)
-        end
-      end
-
-      @dataitems.each do |filepath, item|
-        visible = filepath_matched.include?(filepath)
-        item.treewidgetitem.set_hidden(!visible)
-
-        selected = filepath_matched_1st == filepath
-        item.treewidgetitem.set_selected(selected)
-      end
+      filter = TreeFilter.new
+      filter.perform(self, @dataitems, text)
     end
 
     private
@@ -144,27 +81,10 @@ class PassListWidget < RubyQt6::Bando::QWidget
       action
     end
 
-    def initialize_fileiconprovider
-      @fileiconprovider = QFileIconProvider.new
-    end
-
-    def h_passfile?(fileinfo)
-      case fileinfo
-      when QFileInfo then fileinfo.suffix.downcase == "gpg"
-      when QString then fileinfo.ends_with(".gpg", Qt::CaseInsensitive)
-      else raise "unreachable!"
-      end
-    end
-
-    def h_folderpath(fileinfo)
-      folder = fileinfo.dir? ? fileinfo.absolute_file_path : fileinfo.absolute_path
-      QDir.new(@store).relative_file_path(folder)
-    end
-
     def _on_item_clicked(item, _column)
       filepath = item.data(1, Qt::DisplayRole).value
       dataitem = @dataitems[filepath]
-      h_passfile?(filepath) ?
+      Helpers.passfile?(filepath) ?
         passfile_selected.emit(@store, dataitem.passname) :
         passfolder_selected.emit(@store, dataitem.passname)
     end
@@ -173,7 +93,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
       item = selected_items[0]
       if item
         filepath = item.data(1, Qt::DisplayRole).value
-        folder = h_folderpath(QFileInfo.new(filepath))
+        folder = Helpers.folderpath(@store, QFileInfo.new(filepath))
         folder = "" if folder == "."
       else
         folder = ""
@@ -189,7 +109,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
       item = selected_items[0]
       if item
         filepath = item.data(1, Qt::DisplayRole).value
-        folder = h_folderpath(QFileInfo.new(filepath))
+        folder = Helpers.folderpath(@store, QFileInfo.new(filepath))
         folder = "" if folder == "."
       else
         folder = ""
