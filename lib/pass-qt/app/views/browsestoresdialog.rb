@@ -76,7 +76,7 @@ class BrowseStoresDialog < RubyQt6::Bando::QDialog
     tableitem.delete_now
   end
 
-  def h_put_stores
+  def update_settings_stores
     stores = @dataitems.map { |fullpath, _| {"fullpath" => fullpath} }
     PassQt.settings.PUT_stores(stores)
     stores_changed.emit
@@ -99,11 +99,11 @@ class BrowseStoresDialog < RubyQt6::Bando::QDialog
     end
 
     update_tablewidget_addtableitem(dir)
-    h_put_stores
+    update_settings_stores
   end
 
   def _on_list_remove_button_clicked
     update_tablewidget_removetableitem(sender.parent)
-    h_put_stores
+    update_settings_stores
   end
 end
