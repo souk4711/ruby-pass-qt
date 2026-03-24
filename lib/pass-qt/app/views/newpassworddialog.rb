@@ -93,17 +93,17 @@ class NewPasswordDialog < RubyQt6::Bando::QDialog
   end
 
   def initialize_btngroup
-    @okbutton = QPushButton.new("Create")
-    @okbutton.clicked.connect(self, :_on_okbutton_clicked)
+    @btngroup = QDialogButtonBox.new(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal)
+    @btngroup.accepted.connect(self, :_on_okbutton_clicked)
+    @btngroup.rejected.connect(self, :_on_cancelbutton_clicked)
 
-    @cancelbutton = QPushButton.new("Cancel")
-    @cancelbutton.clicked.connect(self, :_on_cancelbutton_clicked)
+    okbutton = @btngroup.button(QDialogButtonBox::Ok)
+    okbutton.set_text("Create")
+    okbutton.set_default(true)
+    okbutton.set_auto_default(true)
 
-    @btngroup = QWidget.new
-    layout = QHBoxLayout.new(@btngroup)
-    layout.add_stretch
-    layout.add_widget(@okbutton)
-    layout.add_widget(@cancelbutton)
+    cancelbutton = @btngroup.button(QDialogButtonBox::Cancel)
+    cancelbutton.set_auto_default(true)
   end
 
   def update_form_errinfo(info)
