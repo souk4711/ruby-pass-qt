@@ -53,8 +53,11 @@ class PassListWidget < RubyQt6::Bando::QWidget
       builder.perform(self, @store, @dataitems)
 
       expand_all
-      @dataitems.each do |_, item|
-        if item.passname == selected_passname
+      if selected_passname.nil?
+        set_current_item(nil)
+      else
+        @dataitems.each do |_, item|
+          next if item.passname != selected_passname
           set_current_item(item.treewidgetitem)
           break
         end
