@@ -1,7 +1,9 @@
 class PassListWidget < RubyQt6::Bando::QWidget
   class TreeWidget < RubyQt6::Bando::QTreeWidget
     class TreeFilter
-      def perform(_treewidget, dataitems, text)
+      def perform(treewidget, dataitems, text)
+        treewidget.set_current_item(nil)
+
         if text.empty?
           dataitems.each do |_, item|
             item.treewidgetitem.set_hidden(false)

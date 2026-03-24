@@ -3,6 +3,7 @@ class MainWindow < RubyQt6::Bando::QMainWindow
     slot "_on_browse_action_triggered()"
     slot "_on_browsestoresdialog_stores_changed()"
     slot "_on_passlistwidget_store_changed(QString)"
+    slot "_on_passlistwidget_nil_selected(QString)"
     slot "_on_passlistwidget_passfile_selected(QString,QString)"
     slot "_on_passlistwidget_passfolder_selected(QString,QString)"
   end
@@ -39,6 +40,7 @@ class MainWindow < RubyQt6::Bando::QMainWindow
   def initialize_central_widget
     @passlistwidget = PassListWidget.new
     @passlistwidget.store_changed.connect(self, :_on_passlistwidget_store_changed)
+    @passlistwidget.nil_selected.connect(self, :_on_passlistwidget_nil_selected)
     @passlistwidget.passfile_selected.connect(self, :_on_passlistwidget_passfile_selected)
     @passlistwidget.passfolder_selected.connect(self, :_on_passlistwidget_passfolder_selected)
 
@@ -64,7 +66,11 @@ class MainWindow < RubyQt6::Bando::QMainWindow
     @passlistwidget.refresh
   end
 
-  def _on_passlistwidget_store_changed(store)
+  def _on_passlistwidget_store_changed(_store)
+    @passinfowidget.use_infocard
+  end
+
+  def _on_passlistwidget_nil_selected(_store)
     @passinfowidget.use_infocard
   end
 

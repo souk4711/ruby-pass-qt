@@ -5,6 +5,7 @@ require_relative "treewidget/treefilter"
 class PassListWidget < RubyQt6::Bando::QWidget
   class TreeWidget < RubyQt6::Bando::QTreeWidget
     q_object do
+      signal "nil_selected(QString)"
       signal "passfile_selected(QString,QString)"
       signal "passfolder_selected(QString,QString)"
       slot "_on_current_item_changed(QTreeWidgetItem*,QTreeWidgetItem*)"
@@ -82,7 +83,10 @@ class PassListWidget < RubyQt6::Bando::QWidget
     end
 
     def _on_current_item_changed(curr, _prev)
-      return if curr.nil?
+      if curr.nil?
+        nil_selected.emit(@store)
+        return
+      end
 
       filepath = curr.data(1, Qt::DisplayRole).value
       dataitem = @dataitems[filepath]

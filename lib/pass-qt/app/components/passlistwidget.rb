@@ -3,6 +3,7 @@ require_relative "passlistwidget/treewidget"
 class PassListWidget < RubyQt6::Bando::QWidget
   q_object do
     signal "store_changed(QString)"
+    signal "nil_selected(QString)"
     signal "passfile_selected(QString,QString)"
     signal "passfolder_selected(QString,QString)"
     slot "_on_combobox_current_text_changed(QString)"
@@ -57,6 +58,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
   def initialize_treewidget
     @treewidget = TreeWidget.new
     @treewidget.set_header_hidden(true)
+    @treewidget.nil_selected.connect(self, :nil_selected)
     @treewidget.passfile_selected.connect(self, :passfile_selected)
     @treewidget.passfolder_selected.connect(self, :passfolder_selected)
   end
