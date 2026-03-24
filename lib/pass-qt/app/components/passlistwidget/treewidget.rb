@@ -7,7 +7,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
     q_object do
       signal "passfile_selected(QString,QString)"
       signal "passfolder_selected(QString,QString)"
-      slot "_on_item_clicked(QTreeWidgetItem*,int)"
+      slot "_on_current_item_changed(QTreeWidgetItem*,QTreeWidgetItem*)"
       slot "_on_new_password_action_triggered()"
       slot "_on_new_otp_action_triggered()"
       slot "_on_delete_action_triggered()"
@@ -23,7 +23,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
 
       initialize_actions
 
-      item_clicked.connect(self, :_on_item_clicked)
+      current_item_changed.connect(self, :_on_current_item_changed)
     end
 
     def context_menu_event(evt)
@@ -54,7 +54,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
       expand_all
       @dataitems.each do |_, item|
         if item.passname == selected_passname
-          item.treewidgetitem.set_selected(true)
+          set_current_item(item.treewidgetitem)
           break
         end
       end
@@ -81,8 +81,10 @@ class PassListWidget < RubyQt6::Bando::QWidget
       action
     end
 
-    def _on_item_clicked(item, _column)
-      filepath = item.data(1, Qt::DisplayRole).value
+    def _on_current_item_changed(curr, _prev)
+      return if curr.nil?
+
+      filepath = curr.data(1, Qt::DisplayRole).value
       dataitem = @dataitems[filepath]
       Helpers.passfile?(filepath) ?
         passfile_selected.emit(@store, dataitem.passname) :
