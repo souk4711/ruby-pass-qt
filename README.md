@@ -1,4 +1,4 @@
-# PassQt
+# RubyPassQt
 
 A simple GUI for pass on Linux.
 
@@ -27,7 +27,7 @@ pass init new_gpg-id_or_email
 To launch the GUI:
 
 ```sh
-pass-qt
+ruby-pass-qt
 ```
 
 ## Screenshot
