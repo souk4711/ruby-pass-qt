@@ -32,9 +32,10 @@ class NewPasswordDialog < RubyQt6::Bando::QDialog
     @errinfolabel.set_style_sheet("background: white; color: red; padding: 8px; margin: 4px;")
     @errinfolabel.set_hidden(true)
 
-    placeholder = (@folder == "") ? "github.com" : "#{@folder}/github.com"
+    placeholder = (@folder == "") ? "example.com" : "#{@folder}/example.com"
     @passnamelabel = initialize_form_label("File")
     @passnameinput = initialize_form_inputfield(placeholder)
+    @passnameinput.set_text(placeholder)
     set_focus_proxy(@passnameinput)
 
     @passwordlabel = initialize_form_label("Password")
