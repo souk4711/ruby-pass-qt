@@ -94,6 +94,9 @@ class PassInfoWidget < RubyQt6::Bando::QWidget
     initialize_form_inputfield_copyaction(@otppasswordinput)
     initialize_form_inputfield_viewaction(@otppasswordinput)
 
+    @otpaccountinput = initialize_form_inputfield
+    initialize_form_inputfield_copyaction(@otpaccountinput)
+
     @otpcodeinput = initialize_form_inputfield
     action = @otpcodeinput.add_action(QIcon.from_theme(QIcon::ThemeIcon::EditCopy), QLineEdit::LeadingPosition)
     action.triggered.connect(self, :_on_copy_action_triggered_otpcode)
@@ -102,7 +105,8 @@ class PassInfoWidget < RubyQt6::Bando::QWidget
     otpformlayout = QFormLayout.new(@otpform)
     otpformlayout.add_row(initialize_form_label("File"), @otppassnameinput)
     otpformlayout.add_row(initialize_form_label("OTP URI"), @otppasswordinput)
-    otpformlayout.add_row(initialize_form_label("OTP Code"), @otpcodeinput)
+    otpformlayout.add_row(initialize_form_label("Account"), @otpaccountinput)
+    otpformlayout.add_row(initialize_form_label("Code"), @otpcodeinput)
   end
 
   def initialize_folderform
@@ -161,6 +165,10 @@ class PassInfoWidget < RubyQt6::Bando::QWidget
     @otppasswordinput.set_text(formdata["password"])
     @otppasswordinput.set_cursor_position(0)
     @otppasswordinput.set_echo_mode(QLineEdit::Password)
+
+    label = QUrl.new(formdata["password"]).path.to_s[1..]
+    account = label.split(":")[-1]
+    @otpaccountinput.set_text(account)
 
     @otpcodeinput.set_text("")
     @stackedlayout.set_current_widget(@otpform)
