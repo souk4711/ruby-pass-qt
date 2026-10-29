@@ -1,4 +1,4 @@
-module Contrib
+module Pass
   class Process < RubyQt6::Bando::QObject
     q_object do
       slot "_on_process_error_occurred(QProcess::ProcessError)"
