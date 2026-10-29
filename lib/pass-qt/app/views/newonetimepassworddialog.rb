@@ -1,3 +1,5 @@
+require_relative "newonetimepassworddialog/ui"
+
 class NewOneTimePasswordDialog < RubyQt6::Bando::QDialog
   q_object do
     slot "_on_okbutton_clicked()"
@@ -11,92 +13,26 @@ class NewOneTimePasswordDialog < RubyQt6::Bando::QDialog
     @folder = folder
     @on_success = on_success
 
-    initialize_form
-    initialize_btngroup
-
-    mainlayout = QVBoxLayout.new(self)
-    mainlayout.add_widget(@form)
-    mainlayout.add_widget(@btngroup)
-
-    set_attribute(Qt::WA_DeleteOnClose)
-    set_modal(true)
+    initialize_ui
   end
 
   private
 
-  def initialize_form
-    titlelabel = QLabel.new("<center><b>Insert New OTP Password</b></center>")
+  def _on_okbutton_clicked
+    return unless _on_okbutton_clicked_validate_form
 
-    @errinfolabel = QLabel.new("")
-    @errinfolabel.set_style_sheet("background: white; color: red; padding: 8px; margin: 4px;")
-    @errinfolabel.set_hidden(true)
-
-    placeholder = (@folder == "") ? "example.com-otp" : "#{@folder}/example.com-otp"
-    @passnamelabel = initialize_form_label("File")
-    @passnameinput = initialize_form_inputfield(placeholder)
-    @passnameinput.set_text(placeholder)
-    set_focus_proxy(@passnameinput)
-
-    @passwordlabel = initialize_form_label("OTP URI")
-    @passwordinput = initialize_form_inputfield("otpauth://totp/GitHub...")
-
-    @form = QWidget.new
-    @form.set_object_name("newonetimepassworddialog_form")
-    @form.set_style_sheet("
-      #newonetimepassworddialog_form {
-        min-width: 600px;
-      }
-    ")
-
-    layout = QGridLayout.new(@form)
-    layout.add_widget(titlelabel, 0, 0, 1, 2)
-    layout.set_row_minimum_height(1, 10)
-    layout.add_widget(@errinfolabel, 2, 0, 1, 2)
-    layout.add_widget(@passnamelabel, 3, 0)
-    layout.add_widget(@passnameinput, 3, 1)
-    layout.add_widget(@passwordlabel, 4, 0)
-    layout.add_widget(@passwordinput, 4, 1)
+    store = @store
+    passname = @passnameinput.text
+    password = @passwordinput.text
+    Pass.otp_insert(store, passname, password, on_success: ->(_) {
+      @on_success.call(passname)
+      close
+    }, on_failure: ->(data) {
+      update_form_errinfo(data["stderr"].strip)
+    })
   end
 
-  def initialize_form_label(text)
-    label = QLabel.new(text)
-    label.set_alignment(Qt::AlignRight)
-    label.set_style_sheet("min-width: 80px; padding-right: 4px;")
-    label
-  end
-
-  def initialize_form_inputfield(placeholder)
-    input = QLineEdit.new
-    input.set_placeholder_text(placeholder)
-    input
-  end
-
-  def initialize_btngroup
-    @btngroup = QDialogButtonBox.new(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal)
-    @btngroup.accepted.connect(self, :_on_okbutton_clicked)
-    @btngroup.rejected.connect(self, :_on_cancelbutton_clicked)
-
-    okbutton = @btngroup.button(QDialogButtonBox::Ok)
-    okbutton.set_text("Create")
-    okbutton.set_default(true)
-    okbutton.set_auto_default(true)
-
-    cancelbutton = @btngroup.button(QDialogButtonBox::Cancel)
-    cancelbutton.set_auto_default(true)
-  end
-
-  def update_form_errinfo(info)
-    if info.empty?
-      @errinfolabel.set_text("")
-      @errinfolabel.set_hidden(true)
-      return
-    end
-
-    @errinfolabel.set_text(info)
-    @errinfolabel.set_hidden(false)
-  end
-
-  def validate_form
+  def _on_okbutton_clicked_validate_form
     update_form_errinfo("")
 
     {
@@ -110,20 +46,6 @@ class NewOneTimePasswordDialog < RubyQt6::Bando::QDialog
     end
 
     true
-  end
-
-  def _on_okbutton_clicked
-    return unless validate_form
-
-    store = @store
-    passname = @passnameinput.text
-    password = @passwordinput.text
-    Pass.otp_insert(store, passname, password, on_success: ->(_) {
-      @on_success.call(passname)
-      close
-    }, on_failure: ->(data) {
-      update_form_errinfo(data["stderr"].strip)
-    })
   end
 
   def _on_cancelbutton_clicked
