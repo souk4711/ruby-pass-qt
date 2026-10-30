@@ -1,3 +1,4 @@
+require_relative "mainwindow/components"
 require_relative "mainwindow/ui"
 
 class MainWindow < RubyQt6::Bando::QMainWindow
