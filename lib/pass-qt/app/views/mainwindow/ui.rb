@@ -26,7 +26,7 @@ class MainWindow < RubyQt6::Bando::QMainWindow
     @passlistwidget.passfile_selected.connect(self, :_on_passlistwidget_passfile_selected)
     @passlistwidget.passfolder_selected.connect(self, :_on_passlistwidget_passfolder_selected)
 
-    @passinfowidget = PassInfoWidget.new
+    @passinfowidget = MainWindowPassInfoWidget.new
 
     centralwidget = QWidget.new
     mainlayout = QHBoxLayout.new(centralwidget)

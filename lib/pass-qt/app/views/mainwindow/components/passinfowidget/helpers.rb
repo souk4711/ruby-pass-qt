@@ -1,4 +1,4 @@
-class PassInfoWidget < RubyQt6::Bando::QWidget
+class MainWindowPassInfoWidget < RubyQt6::Bando::QWidget
   module Helpers
     def self.parse_passfile(data)
       lines = data["stdout"].lines
