@@ -1,4 +1,4 @@
-class PassListWidget < RubyQt6::Bando::QWidget
+class MainWindowPassListWidget < RubyQt6::Bando::QWidget
   class TreeWidget < RubyQt6::Bando::QTreeWidget
     DataItem = Struct.new(:passname, :treewidgetitem)
 

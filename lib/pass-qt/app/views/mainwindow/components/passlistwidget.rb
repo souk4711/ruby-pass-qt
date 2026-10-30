@@ -1,6 +1,7 @@
 require_relative "passlistwidget/treewidget"
+require_relative "passlistwidget/ui"
 
-class PassListWidget < RubyQt6::Bando::QWidget
+class MainWindowPassListWidget < RubyQt6::Bando::QWidget
   q_object do
     signal "store_changed(QString)"
     signal "nil_selected(QString)"
@@ -13,16 +14,7 @@ class PassListWidget < RubyQt6::Bando::QWidget
   def initialize
     super
 
-    initialize_combobox
-    initialize_searchbar
-    initialize_treewidget
-
-    mainlayout = QVBoxLayout.new(self)
-    mainlayout.add_layout(@comboboxlayout)
-    mainlayout.add_widget(@searchbar)
-    mainlayout.add_widget(@treewidget)
-
-    update_combobox
+    initialize_ui
   end
 
   def refresh
@@ -31,44 +23,10 @@ class PassListWidget < RubyQt6::Bando::QWidget
     ensure
       @combobox.block_signals(blocked)
     end
-
-    update_combobox
+    update_combobox_using_settings_stores
   end
 
   private
-
-  def initialize_combobox
-    @combobox = QComboBox.new
-    @combobox.current_text_changed.connect(self, :_on_combobox_current_text_changed)
-
-    @comboboxlayout = QHBoxLayout.new
-    @comboboxlayout.add_widget(QLabel.new("Current Store"))
-    @comboboxlayout.add_widget(@combobox)
-    @comboboxlayout.set_stretch(0, 2)
-    @comboboxlayout.set_stretch(1, 3)
-  end
-
-  def initialize_searchbar
-    @searchbar = QLineEdit.new
-    @searchbar.set_clear_button_enabled(true)
-    @searchbar.set_placeholder_text("List passwords that match passname...")
-    @searchbar.text_changed.connect(self, :_on_searchbar_text_changed)
-  end
-
-  def initialize_treewidget
-    @treewidget = TreeWidget.new
-    @treewidget.set_header_hidden(true)
-    @treewidget.nil_selected.connect(self, :nil_selected)
-    @treewidget.passfile_selected.connect(self, :passfile_selected)
-    @treewidget.passfolder_selected.connect(self, :passfolder_selected)
-  end
-
-  def update_combobox
-    PassQt.settings.GET_stores.each do |store|
-      fileinfo = QFileInfo.new(store["fullpath"])
-      @combobox.add_item(fileinfo.file_name, QVariant.new(fileinfo.absolute_file_path))
-    end
-  end
 
   def _on_combobox_current_text_changed(_text)
     store = @combobox.current_data.value

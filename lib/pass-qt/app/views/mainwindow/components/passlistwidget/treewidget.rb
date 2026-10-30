@@ -2,7 +2,7 @@ require_relative "treewidget/helpers"
 require_relative "treewidget/treebuilder"
 require_relative "treewidget/treefilter"
 
-class PassListWidget < RubyQt6::Bando::QWidget
+class MainWindowPassListWidget < RubyQt6::Bando::QWidget
   class TreeWidget < RubyQt6::Bando::QTreeWidget
     q_object do
       signal "nil_selected(QString)"
