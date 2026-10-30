@@ -21,12 +21,12 @@ class MainWindow < RubyQt6::Bando::QMainWindow
 
   def initialize_central_widget
     @passlistwidget = MainWindowPassListWidget.new
-    @passlistwidget.store_changed.connect(self, :_on_passlistwidget_store_changed)
-    @passlistwidget.nil_selected.connect(self, :_on_passlistwidget_nil_selected)
-    @passlistwidget.passfile_selected.connect(self, :_on_passlistwidget_passfile_selected)
-    @passlistwidget.passfolder_selected.connect(self, :_on_passlistwidget_passfolder_selected)
-
     @passinfowidget = MainWindowPassInfoWidget.new
+
+    @passlistwidget.store_changed.connect(@passinfowidget, :activate_infocard)
+    @passlistwidget.nil_selected.connect(@passinfowidget, :activate_infocard)
+    @passlistwidget.passfile_selected.connect(@passinfowidget, :activate_passfilecard)
+    @passlistwidget.passfolder_selected.connect(@passinfowidget, :activate_passfoldercard)
 
     centralwidget = QWidget.new
     mainlayout = QHBoxLayout.new(centralwidget)

@@ -7,6 +7,7 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
     signal "nil_selected(QString)"
     signal "passfile_selected(QString,QString)"
     signal "passfolder_selected(QString,QString)"
+    slot "refresh()"
     slot "_on_combobox_current_text_changed(QString)"
     slot "_on_searchbar_text_changed(QString)"
   end
@@ -17,6 +18,8 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
     initialize_ui
   end
 
+  private
+
   def refresh
     @combobox.block_signals(true).tap do |blocked|
       @combobox.clear
@@ -25,8 +28,6 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
     end
     update_combobox_using_settings_stores
   end
-
-  private
 
   def _on_combobox_current_text_changed(_text)
     store = @combobox.current_data.value

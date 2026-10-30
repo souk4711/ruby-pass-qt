@@ -3,6 +3,9 @@ require_relative "passinfowidget/ui"
 
 class MainWindowPassInfoWidget < RubyQt6::Bando::QWidget
   q_object do
+    slot "activate_passfilecard(QString,QString)"
+    slot "activate_passfoldercard(QString,QString)"
+    slot "activate_infocard()"
     slot "_on_copy_action_triggered()"
     slot "_on_copy_action_triggered_otpcode()"
     slot "_on_view_action_triggered()"
@@ -14,6 +17,8 @@ class MainWindowPassInfoWidget < RubyQt6::Bando::QWidget
     initialize_ui
     activate_infocard
   end
+
+  private
 
   def activate_passfilecard(store, passname)
     @store = store
@@ -45,8 +50,6 @@ class MainWindowPassInfoWidget < RubyQt6::Bando::QWidget
     @passname = QString.new
     activate_infoframe
   end
-
-  private
 
   def _on_copy_action_triggered
     input = sender.parent
