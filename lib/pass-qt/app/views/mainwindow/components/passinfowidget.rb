@@ -26,7 +26,7 @@ class MainWindowPassInfoWidget < RubyQt6::Bando::QWidget
     activate_infoframe
 
     Pass.show(@store, @passname, on_success: ->(data) {
-      formdata = Helpers.parse_passfile(data)
+      formdata = hlpr_parse_passfile(data)
       if formdata["password"].start_with?("otpauth:")
         activate_otpform(formdata)
       else

@@ -1,26 +1,26 @@
 class MainWindowPassInfoWidget < RubyQt6::Bando::QWidget
-  module Helpers
-    def self.parse_passfile(data)
-      lines = data["stdout"].lines
-      password = lines[0][..-2]
+  private
 
-      username = ""
-      website = ""
-      lines.each do |line|
-        matched = line.match(/\A(\w+:\s*)?(.*)\n/)
-        next if matched.nil?
+  def hlpr_parse_passfile(data)
+    lines = data["stdout"].lines
+    password = lines[0][..-2]
 
-        case matched[1]&.rstrip&.downcase
-        when "username:" then username = matched[2]
-        when "website:" then website = matched[2]
-        end
+    username = ""
+    website = ""
+    lines.each do |line|
+      matched = line.match(/\A(\w+:\s*)?(.*)\n/)
+      next if matched.nil?
+
+      case matched[1]&.rstrip&.downcase
+      when "username:" then username = matched[2]
+      when "website:" then website = matched[2]
       end
-
-      {
-        "password" => password,
-        "username" => username,
-        "website" => website
-      }
     end
+
+    {
+      "password" => password,
+      "username" => username,
+      "website" => website
+    }
   end
 end
