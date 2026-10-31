@@ -1,10 +1,11 @@
+require_relative "treewidget/funcs"
 require_relative "treewidget/helpers"
-require_relative "treewidget/treebuilder"
-require_relative "treewidget/treefilter"
 require_relative "treewidget/ui"
 
 class MainWindowPassListWidget < RubyQt6::Bando::QWidget
   class TreeWidget < RubyQt6::Bando::QTreeWidget
+    DataItem = Struct.new(:passname, :treewidgetitem)
+
     q_object do
       signal "nil_selected(QString)"
       signal "passfile_selected(QString,QString)"
@@ -33,27 +34,11 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
     end
 
     def refresh(store, selected_passname: nil)
-      @store = store
-      @dataitems = {}
-
-      builder = TreeBuilder.new
-      builder.perform(self, @store, @dataitems)
-
-      expand_all
-      if selected_passname.nil?
-        set_current_item(nil)
-      else
-        @dataitems.each do |_, item|
-          next if item.passname != selected_passname
-          set_current_item(item.treewidgetitem)
-          break
-        end
-      end
+      refresh_imp(store, selected_passname:)
     end
 
-    def update_passname_filter(text)
-      filter = TreeFilter.new
-      filter.perform(self, @dataitems, text)
+    def filter(text)
+      filter_imp(text)
     end
 
     private
@@ -66,7 +51,7 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
 
       filepath = curr.data(1, Qt::DisplayRole).value
       dataitem = @dataitems[filepath]
-      Helpers.passfile?(filepath) ?
+      hlpr_passfile?(filepath) ?
         passfile_selected.emit(@store, dataitem.passname) :
         passfolder_selected.emit(@store, dataitem.passname)
     end
@@ -75,7 +60,7 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
       item = selected_items[0]
       if item
         filepath = item.data(1, Qt::DisplayRole).value
-        folder = Helpers.folderpath(@store, QFileInfo.new(filepath))
+        folder = hlpr_folderpath(@store, QFileInfo.new(filepath))
         folder = "" if folder == "."
       else
         folder = ""
@@ -91,7 +76,7 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
       item = selected_items[0]
       if item
         filepath = item.data(1, Qt::DisplayRole).value
-        folder = Helpers.folderpath(@store, QFileInfo.new(filepath))
+        folder = hlpr_folderpath(@store, QFileInfo.new(filepath))
         folder = "" if folder == "."
       else
         folder = ""

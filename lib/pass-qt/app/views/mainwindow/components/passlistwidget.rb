@@ -40,6 +40,6 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
   end
 
   def _on_searchbar_text_changed(text)
-    @treewidget.update_passname_filter(text)
+    @treewidget.filter(text)
   end
 end
