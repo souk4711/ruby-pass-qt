@@ -3,12 +3,17 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
     private
 
     def refresh_imp(store, selected_passname:)
+      @dataitems_state = @dataitems.each_with_object({}) do |(passname, dataitem), memo|
+        treewidgetitem = dataitem.treewidgetitem
+        memo[passname] = {expanded: treewidgetitem.expanded?}
+      end
+
       @store = store
       @dataitems = {}
 
       clear
       refresh_imp_rebuild_tree
-      expand_all
+      refresh_imp_expand_all
 
       if selected_passname.nil?
         set_current_item(nil)
@@ -52,6 +57,16 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
           item.set_icon(0, file_icon_provider.icon(entry))
           @dataitems[filepath] = DataItem.new(passname, item)
         end
+      end
+    end
+
+    def refresh_imp_expand_all
+      @dataitems.each do |passname, dataitem|
+        state = @dataitems_state[passname]
+        next if state.nil?
+
+        treewidgetitem = dataitem.treewidgetitem
+        treewidgetitem.set_expanded(state[:expanded])
       end
     end
   end
