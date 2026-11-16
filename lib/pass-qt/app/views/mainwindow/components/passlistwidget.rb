@@ -37,6 +37,7 @@ class MainWindowPassListWidget < RubyQt6::Bando::QWidget
     QTimer.single_shot(0, @searchbar, :set_focus)
 
     @treewidget.refresh(store)
+    @treewidget.expand_all
   end
 
   def _on_searchbar_text_changed(text)
